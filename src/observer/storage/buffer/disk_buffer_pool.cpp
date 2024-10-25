@@ -309,7 +309,6 @@ RC DiskBufferPool::close_file()
   return RC::SUCCESS;
 }
 
-
 void DiskBufferPool::remove_file(){
   bp_manager_.remove_file(file_name_.c_str());
 }
