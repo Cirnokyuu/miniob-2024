@@ -26,10 +26,10 @@ class Db;
  * @ingroup Statement
  * @details 虽然解析成了stmt，但是与原始的SQL解析后的数据也差不多
  */
-class CreateTableStmt : public Stmt
+class DropTableStmt : public Stmt
 {
 public:
-  CreateTableStmt(const std::string &table_name) : table_name_(table_name)
+  DropTableStmt(const std::string &table_name) : table_name_(table_name)
   {}
   virtual ~DropTableStmt() = default;
 
