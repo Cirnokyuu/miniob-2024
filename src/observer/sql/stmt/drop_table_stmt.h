@@ -30,7 +30,7 @@ class CreateTableStmt : public Stmt
 {
 public:
   CreateTableStmt(
-      const std::string &table_name : table_name_(table_name), 
+      const std::string &table_name : table_name_(table_name)
   {}
   virtual ~DropTableStmt() = default;
 
