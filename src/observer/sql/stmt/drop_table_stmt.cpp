@@ -19,6 +19,6 @@ See the Mulan PSL v2 for more details. */
 
 RC DropTableStmt::create(Db *db, const DropTableSqlNode &drop_Table, Stmt *&stmt)
 {
-  stmt = new DropTableStmt(drop_Table.relation_name, drop_Table.attr_infos, storage_format);
+  stmt = new DropTableStmt(drop_Table.relation_name);
   return RC::SUCCESS;
 }
