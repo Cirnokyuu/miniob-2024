@@ -132,7 +132,7 @@ RC Table::drop(const char *path){
     LOG_ERROR("Failed to delete table file. filename=%s, errmsg=%s", path, strerror(errno));
     return RC::INTERNAL;
   }
-  string             data_file = table_data_file(base_dir.c_str(), table_meta_.name());
+  string             data_file = table_data_file(base_dir_.c_str(), table_meta_.name());
   BufferPoolManager &bpm       = db->buffer_pool_manager();
   bpm.remove_file(data_file.c_str());
   data_buffer_pool_ = nullptr;
@@ -146,7 +146,7 @@ RC Table::drop(const char *path){
     index=nullptr;
   }
   LOG_INFO("Successfully drop table %s", path); 
-  return RC:SUCCESS;
+  return RC::SUCCESS;
 }
 
 RC Table::open(Db *db, const char *meta_file, const char *base_dir)
