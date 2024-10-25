@@ -477,6 +477,7 @@ public:
    * 关闭句柄indexHandle对应的索引文件
    */
   RC close();
+  void destroy();
 
   /**
    * @brief 此函数向IndexHandle对应的索引中插入一个索引项。
