@@ -29,6 +29,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/record/record_manager.h"
 #include "storage/index/latch_memo.h"
 #include "storage/index/bplus_tree_log.h"
+#include "common/type/attr_type.h"
 
 class BplusTreeHandler;
 class BplusTreeMiniTransaction;
@@ -73,6 +74,7 @@ public:
     Value right;
     right.set_type(attr_type_);
     right.set_data(v2, attr_length_);
+    LOG_INFO("%s",attr_type_to_string(attr_type_));
     return DataType::type_instance(attr_type_)->compare(left, right);
   }
 

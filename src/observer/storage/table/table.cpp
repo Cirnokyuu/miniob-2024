@@ -141,9 +141,11 @@ RC Table::drop(const char *path){
     record_handler_ = nullptr;
   }
   for(auto &index:indexes_){
+//    string index_file = table_index_file(base_dir_.c_str(), table_meta_.name(),index->index_meta().name());
     index->destroy();
     delete index;
     index=nullptr;
+//    bpm.remove_file(index_file.c_str());
   }
   LOG_INFO("Successfully drop table %s", path); 
   return RC::SUCCESS;

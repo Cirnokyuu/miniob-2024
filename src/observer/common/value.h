@@ -34,6 +34,7 @@ public:
   friend class FloatType;
   friend class BooleanType;
   friend class CharType;
+  friend class DateType;
   friend class VectorType;
 
   Value() = default;
@@ -90,6 +91,10 @@ public:
   void set_data(const char *data, int length) { this->set_data(const_cast<char *>(data), length); }
   void set_value(const Value &value);
   void set_boolean(bool val);
+  void set_date(int y,int m,int d){
+    value_.int_value_=y*10000+m*100+d;
+    attr_type_ = AttrType::DATES;
+  }
 
   string to_string() const;
 

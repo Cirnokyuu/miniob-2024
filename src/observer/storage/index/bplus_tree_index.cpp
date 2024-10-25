@@ -76,6 +76,7 @@ RC BplusTreeIndex::close()
     index_handler_.close();
     inited_ = false;
   }
+  else LOG_INFO("Index not inited.");
   LOG_INFO("Successfully close index.");
   return RC::SUCCESS;
 }
@@ -87,6 +88,7 @@ void BplusTreeIndex::destroy()
     index_handler_.destroy();
     inited_ = false;
   }
+  else LOG_INFO("Index not inited.");
   LOG_INFO("Successfully destroy index.");
 }
 

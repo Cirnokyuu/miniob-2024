@@ -891,6 +891,7 @@ RC BufferPoolManager::close_file(const char *_file_name)
 }
 
 RC BufferPoolManager::remove_file(const char *file_name){
+  LOG_INFO("del: %s",file_name);
   close_file(file_name);
   ::remove(file_name);
   return RC::SUCCESS;
