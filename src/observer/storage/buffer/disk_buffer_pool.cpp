@@ -890,7 +890,7 @@ RC BufferPoolManager::close_file(const char *_file_name)
   return RC::SUCCESS;
 }
 
-RC DiskBufferPool::remove_file(const char *file_name){
+RC BufferPoolManager::remove_file(const char *file_name){
   close_file(file_name);
   ::remove(file_name);
   return RC::SUCCESS;
