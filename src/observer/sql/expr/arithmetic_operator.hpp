@@ -32,6 +32,7 @@ struct Equal
   static inline __m256i operation(const __m256i &left, const __m256i &right) { return _mm256_cmpeq_epi32(left, right); }
 #endif
 };
+
 struct NotEqual
 {
   template <class T>
@@ -363,10 +364,6 @@ void compare_result(T *left, T *right, int n, std::vector<uint8_t> &result, Comp
     }
     case CompOp::LESS_EQUAL: {
       compare_operation<T, LEFT_CONSTANT, RIGHT_CONSTANT, LessEqual>(left, right, n, result);
-      break;
-    }
-    case CompOp::LESS_THAN: {
-      compare_operation<T, LEFT_CONSTANT, RIGHT_CONSTANT, LessThan>(left, right, n, result);
       break;
     }
     default: break;
