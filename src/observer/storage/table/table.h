@@ -71,6 +71,7 @@ public:
    * @param record    生成的记录数据
    */
   RC make_record(int value_num, const Value *values, Record &record);
+  RC update_record(Record &record, const FieldMeta *field, const Value &value);
 
   /**
    * @brief 在当前的表中插入一条记录
