@@ -115,6 +115,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         NE
         LIKE
         NOT
+        NULL_T
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -134,6 +135,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   char *                                     string;
   int                                        number;
   float                                      floats;
+  bool                                       boolean;
 }
 
 %token <number> NUMBER
@@ -152,6 +154,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <rel_attr>            rel_attr
 %type <attr_infos>          attr_def_list
 %type <attr_info>           attr_def
+%type <boolean>             null_option
 %type <value_list>          value_list
 %type <condition_list>      where
 %type <condition_list>      condition_list
@@ -338,23 +341,37 @@ attr_def_list:
       delete $2;
     }
     ;
-    
 attr_def:
-    ID type LBRACE number RBRACE 
+    ID type LBRACE number RBRACE null_option
     {
       $$ = new AttrInfoSqlNode;
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = $4;
+      $$->nullable = $6;
       free($1);
     }
-    | ID type
+    | ID type null_option
     {
       $$ = new AttrInfoSqlNode;
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = 4;
+      $$->nullable = $3;
       free($1);
+    }
+    ;
+null_option:
+    {
+      $$ = true;
+    }
+    | NULL_T
+    {
+      $$ = true;
+    }
+    | NOT NULL_T
+    {
+      $$ = false;
     }
     ;
 number:
@@ -413,6 +430,10 @@ value:
       free(tmp);
       free($1);
     }
+    | NULL_T {
+      $$ = new Value();
+      $$->set_null();
+    }
     ;
 storage_format:
     /* empty */
@@ -453,10 +474,20 @@ update_stmt:      /*  update 语句的语法解析树*/
     }
     ;
 select_stmt:        /*  select 语句的语法解析树*/
-    SELECT expression_list FROM rel_list where group_by
+    SELECT expression_list
     {
       $$ = new ParsedSqlNode(SCF_SELECT);
       if ($2 != nullptr) {
+        std::reverse($2->begin(), $2->end());
+        $$->selection.expressions.swap(*$2);
+        delete $2;
+      }
+    }
+    | SELECT expression_list FROM rel_list where group_by
+    {
+      $$ = new ParsedSqlNode(SCF_SELECT);
+      if ($2 != nullptr) {
+        std::reverse($2->begin(), $2->end());
         $$->selection.expressions.swap(*$2);
         delete $2;
       }

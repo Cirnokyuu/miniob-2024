@@ -295,9 +295,17 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
   char *record_data = (char *)malloc(record_size);
   memset(record_data, 0, record_size);
 
+  const FieldMeta* null_field = table_meta_.null_field();
+  common::Bitmap null_field_bitmap(record_data + null_field->offset(), table_meta_.field_num());
+  null_field_bitmap.clear_all();
+
   for (int i = 0; i < value_num && OB_SUCC(rc); i++) {
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
     const Value &    value = values[i];
+    if (value.is_null()) {
+      null_field_bitmap.set_bit(normal_field_start_index + i);
+      continue;
+    }
     if (field->type() != value.attr_type()) {
       Value real_value;
       rc = Value::cast_to(value, field->type(), real_value);
@@ -321,13 +329,14 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
   return RC::SUCCESS;
 }
 
+
 RC Table::update_record(Record &record, const FieldMeta *field, const Value &value)
 {
   RC rc = RC::SUCCESS;
   int   record_size = table_meta_.record_size();
   char *record_data = (char *)malloc(record_size);
   memcpy(record_data, record.data(), record_size);
-
+  
   if (field->type() != value.attr_type()) {
     Value real_value;
     rc = Value::cast_to(value, field->type(), real_value);
@@ -340,6 +349,12 @@ RC Table::update_record(Record &record, const FieldMeta *field, const Value &val
   } else {
     rc = set_value_to_record(record_data, value, field);
   }
+
+  const FieldMeta* null_field = table_meta_.null_field();
+  common::Bitmap new_null_bitmap(record_data + null_field->offset(), table_meta_.field_num());
+  int field_index = field->field_id();
+  if (value.is_null()) new_null_bitmap.set_bit(field_index);
+  else new_null_bitmap.clear_bit(field_index);
 
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to make record. table name:%s", table_meta_.name());

@@ -77,6 +77,13 @@ struct ConditionSqlNode
   Value          right_value;    ///< right-hand side value if right_is_attr = FALSE
 };
 
+// struct ConditionSqlNode
+// {
+//   std::unique_ptr<Expression> left_expr;
+//   CompOp          comp;            ///< comparison operator
+//   std::unique_ptr<Expression> right_expr;
+// };
+
 /**
  * @brief 描述一个select语句
  * @ingroup SQLParser
@@ -148,6 +155,7 @@ struct AttrInfoSqlNode
   AttrType    type;    ///< Type of attribute
   std::string name;    ///< Attribute name
   size_t      length;  ///< Length of attribute
+  bool        nullable;   ///< Nullable
 };
 
 /**

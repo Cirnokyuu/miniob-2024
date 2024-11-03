@@ -13,6 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "common/lang/bitmap.h"
+#include <cstring>
 
 namespace common {
 
@@ -63,6 +64,10 @@ void Bitmap::clear_bit(int index)
 {
   char &bits = bitmap_[index / 8];
   bits &= ~(1 << (index % 8));
+}
+
+void Bitmap::clear_all(){
+  memset(bitmap_, 0, bytes(size_));
 }
 
 int Bitmap::next_unsetted_bit(int start)

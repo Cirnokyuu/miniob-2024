@@ -26,6 +26,7 @@ public:
   bool get_bit(int index);
   void set_bit(int index);
   void clear_bit(int index);
+  void clear_all();
 
   /**
    * @param start 从哪个位开始查找，start是包含在内的

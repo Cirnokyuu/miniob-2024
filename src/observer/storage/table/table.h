@@ -70,6 +70,8 @@ public:
    * @param values    每个字段的值
    * @param record    生成的记录数据
    */
+
+  int get_field_id(const FieldMeta *field);
   RC make_record(int value_num, const Value *values, Record &record);
   RC update_record(Record &record, const FieldMeta *field, const Value &value);
 

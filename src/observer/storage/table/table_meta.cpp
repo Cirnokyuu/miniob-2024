@@ -67,7 +67,7 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
     fields_.resize(attributes.size() + trx_fields->size());
     for (size_t i = 0; i < trx_fields->size(); i++) {
       const FieldMeta &field_meta = (*trx_fields)[i];
-      fields_[i] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false /*visible*/, field_meta.field_id());
+      fields_[i] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false /*visible*/, field_meta.nullable() /*nullable*/, field_meta.field_id());
       field_offset += field_meta.len();
     }
 
@@ -80,7 +80,8 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
     const AttrInfoSqlNode &attr_info = attributes[i];
     // `i` is the col_id of fields[i]
     rc = fields_[i + trx_field_num].init(
-      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/, i);
+      // 多写代码少睡觉
+      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/, attr_info.nullable /*nullable*/ ,i);
     if (OB_FAIL(rc)) {
       LOG_ERROR("Failed to init field meta. table name=%s, field name: %s", name, attr_info.name.c_str());
       return rc;
@@ -106,11 +107,11 @@ RC TableMeta::add_index(const IndexMeta &index)
 
 const char *TableMeta::name() const { return name_.c_str(); }
 
-const FieldMeta *TableMeta::trx_field() const { return &fields_[0]; }
+const FieldMeta *TableMeta::null_field() const { return &fields_[0]; }
 
 span<const FieldMeta> TableMeta::trx_fields() const
 {
-  return span<const FieldMeta>(fields_.data(), sys_field_num());
+  return span<const FieldMeta>(fields_.data()+1, sys_field_num());
 }
 
 const FieldMeta *TableMeta::field(int index) const { return &fields_[index]; }
@@ -138,7 +139,9 @@ const FieldMeta *TableMeta::find_field_by_offset(int offset) const
 }
 int TableMeta::field_num() const { return fields_.size(); }
 
-int TableMeta::sys_field_num() const { return static_cast<int>(trx_fields_.size()); }
+int TableMeta::sys_field_num() const {
+  return 1+static_cast<int>(trx_fields_.size());
+}
 
 const IndexMeta *TableMeta::index(const char *name) const
 {
