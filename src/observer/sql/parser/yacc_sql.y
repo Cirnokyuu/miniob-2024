@@ -155,7 +155,6 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <rel_attr>            rel_attr
 %type <attr_infos>          attr_def_list
 %type <attr_info>           attr_def
-%type <boolean>             null_option
 %type <value_list>          value_list
 %type <condition_list>      where
 %type <condition_list>      condition_list
@@ -185,6 +184,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <sql_node>            help_stmt
 %type <sql_node>            exit_stmt
 %type <sql_node>            command_wrapper
+%type <boolean>             null_option
+%type <boolean>             is_null_comp
 // commands should be a list but I use a single command instead
 %type <sql_node>            commands
 
@@ -618,6 +619,16 @@ where:
       $$ = $2;  
     }
     ;
+is_null_comp:
+    IS NULL_T
+    {
+      $$ = true;
+    }
+    | IS NOT NULL_T
+    {
+      $$ = false;
+    }
+    ;
 condition_list:
     /* empty */
     {
@@ -635,7 +646,25 @@ condition_list:
     }
     ;
 condition:
-    rel_attr comp_op value
+    value is_null_comp
+    {
+      $$ = new ConditionSqlNode;
+      $$->left_is_attr = 0;
+      $$->left_value = *$1;
+      $$->right_is_attr = 0;
+      $$->right_value = *$1;
+      $$->comp = ($2 ? IS_NULL : IS_NOT_NULL);
+    }
+    | rel_attr is_null_comp
+    {
+      $$ = new ConditionSqlNode;
+      $$->left_is_attr = 1;
+      $$->left_attr = *$1;
+      $$->right_is_attr = 1;
+      $$->right_attr = *$1;
+      $$->comp = ($2 ? IS_NULL : IS_NOT_NULL);
+    }
+    | rel_attr comp_op value
     {
       $$ = new ConditionSqlNode;
       $$->left_is_attr = 1;

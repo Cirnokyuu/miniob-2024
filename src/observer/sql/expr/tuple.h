@@ -18,6 +18,7 @@ See the Mulan PSL v2 for more details. */
 #include <string>
 #include <vector>
 
+#include "common/lang/bitmap.h"
 #include "common/log/log.h"
 #include "sql/expr/expression.h"
 #include "sql/expr/tuple_cell.h"
@@ -103,6 +104,7 @@ public:
     for (int i = 0; i < cell_num - 1; i++) {
       Value cell;
       cell_at(i, cell);
+      LOG_INFO("%s: %s",attr_type_to_string(cell.attr_type()),cell.to_string().c_str());
       str += cell.to_string();
       str += ", ";
     }
@@ -171,7 +173,13 @@ public:
     speces_.clear();
   }
 
-  void set_record(Record *record) { this->record_ = record; }
+  void set_record(Record *record) {
+    this->record_ = record; 
+    ASSERT(!this->speces_.empty(), "RowTuple speces empty!");
+    const FieldMeta* null_field = this->speces_.front()->field().meta();
+    ASSERT(nullptr != null_field && AttrType::CHARS == null_field->type(), "RowTuple get null field failed!");
+    null_map_.init(record->data() + null_field->offset(), this->speces_.size());
+  }
 
   void set_schema(const Table *table, const std::vector<FieldMeta> *fields)
   {
@@ -197,10 +205,14 @@ public:
       return RC::INVALID_ARGUMENT;
     }
 
-    FieldExpr       *field_expr = speces_[index];
-    const FieldMeta *field_meta = field_expr->field().meta();
-    cell.set_type(field_meta->type());
-    cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
+    if (null_map_.get_bit(index)) {
+      cell.set_null();
+    } else {
+      FieldExpr       *field_expr = speces_[index];
+      const FieldMeta *field_meta = field_expr->field().meta();
+      cell.set_type(field_meta->type());
+      cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
+    }
     return RC::SUCCESS;
   }
 
@@ -247,6 +259,7 @@ public:
 
 private:
   Record                  *record_ = nullptr;
+  common::Bitmap          null_map_;
   const Table             *table_  = nullptr;
   std::vector<FieldExpr *> speces_;
 };

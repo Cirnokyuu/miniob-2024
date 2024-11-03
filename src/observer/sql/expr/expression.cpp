@@ -132,6 +132,10 @@ static bool str_like(const Value &left, const Value &right)
   return res;
 }
 
+ComparisonExpr::ComparisonExpr(CompOp comp, Expression* left, Expression* right)
+    : comp_(comp), left_(std::move(left)), right_(std::move(right))
+{}
+
 ComparisonExpr::ComparisonExpr(CompOp comp, unique_ptr<Expression> left, unique_ptr<Expression> right)
     : comp_(comp), left_(std::move(left)), right_(std::move(right))
 {}
@@ -142,6 +146,21 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
 {
   RC  rc         = RC::SUCCESS;
 
+  if (comp_ == IS_NULL) {
+    result = left.is_null();
+    return rc;
+  }
+
+  if (comp_ == IS_NOT_NULL) {
+    result = !left.is_null();
+    return rc;
+  }
+  
+  if (left.is_null() || right.is_null()){
+    result = false;
+    return rc;
+  }
+
   if (comp_ == LIKE_OP) {
     result = str_like(left, right);
     return rc;
@@ -150,6 +169,7 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
     result = !str_like(left, right);
     return rc;
   }
+  
 
   int cmp_result = left.compare(right);
   result         = false;
@@ -336,7 +356,9 @@ AttrType ArithmeticExpr::value_type() const
   if (!right_) {
     return left_->value_type();
   }
-
+  if(left_->value_type() == AttrType::NULLS || right_->value_type() == AttrType::NULLS) {
+    return AttrType::NULLS;
+  }
   if (left_->value_type() == AttrType::INTS && right_->value_type() == AttrType::INTS &&
       arithmetic_type_ != Type::DIV) {
     return AttrType::INTS;
@@ -350,6 +372,12 @@ RC ArithmeticExpr::calc_value(const Value &left_value, const Value &right_value,
   RC rc = RC::SUCCESS;
 
   const AttrType target_type = value_type();
+  if(target_type == AttrType::NULLS || left_value.is_null() || right_value.is_null())
+  {
+    value.set_null();
+    return rc;
+  }
+
   value.set_type(target_type);
 
   switch (arithmetic_type_) {

@@ -290,6 +290,24 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
   }
 
   const int normal_field_start_index = table_meta_.sys_field_num();
+  for (int i = 0; i < value_num; i++) {
+    const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
+    const Value     &value = values[i];
+    // double check. no need to cast.
+    if (value.is_null() && field->nullable()) {
+      continue;
+    }
+    if (field->type() != value.attr_type()) {
+      Value real_value;
+      rc = Value::cast_to(value, field->type(), real_value);
+      if (OB_FAIL(rc)) {
+        LOG_ERROR("Invalid value type. table name:%s,field name:%s,value:%s ",
+            table_meta_.name(), field->name(), value.to_string().c_str());
+        return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+      }
+    }
+  }
+
   // 复制所有字段的值
   int   record_size = table_meta_.record_size();
   char *record_data = (char *)malloc(record_size);
@@ -302,6 +320,7 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
   for (int i = 0; i < value_num && OB_SUCC(rc); i++) {
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
     const Value &    value = values[i];
+    LOG_INFO("%s: %s",attr_type_to_string(value.attr_type()),value.to_string().c_str());
     if (value.is_null()) {
       null_field_bitmap.set_bit(normal_field_start_index + i);
       continue;
@@ -337,24 +356,36 @@ RC Table::update_record(Record &record, const FieldMeta *field, const Value &val
   char *record_data = (char *)malloc(record_size);
   memcpy(record_data, record.data(), record_size);
   
-  if (field->type() != value.attr_type()) {
-    Value real_value;
-    rc = Value::cast_to(value, field->type(), real_value);
-    if (OB_FAIL(rc)) {
-      LOG_WARN("failed to cast value. table name:%s,field name:%s,value:%s ",
-          table_meta_.name(), field->name(), value.to_string().c_str());
-      return rc;
-    }
-    rc = set_value_to_record(record_data, real_value, field);
-  } else {
-    rc = set_value_to_record(record_data, value, field);
-  }
 
   const FieldMeta* null_field = table_meta_.null_field();
   common::Bitmap new_null_bitmap(record_data + null_field->offset(), table_meta_.field_num());
   int field_index = field->field_id();
-  if (value.is_null()) new_null_bitmap.set_bit(field_index);
-  else new_null_bitmap.clear_bit(field_index);
+  if (value.is_null()){
+    if (field->nullable()){
+      new_null_bitmap.set_bit(field_index);
+    }
+    else{
+        LOG_ERROR("Invalid value type. table name:%s,field name:%s,value:%s ",
+            table_meta_.name(), field->name(), value.to_string().c_str());
+        return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    }
+  }
+  else{
+    new_null_bitmap.clear_bit(field_index);
+    if (field->type() != value.attr_type()) {
+      Value real_value;
+      rc = Value::cast_to(value, field->type(), real_value);
+      if (OB_FAIL(rc)) {
+        LOG_WARN("failed to cast value. table name:%s,field name:%s,value:%s ",
+            table_meta_.name(), field->name(), value.to_string().c_str());
+        return rc;
+      }
+      rc = set_value_to_record(record_data, real_value, field);
+    } else {
+      rc = set_value_to_record(record_data, value, field);
+    }
+  }
+
 
   if (OB_FAIL(rc)) {
     LOG_WARN("failed to make record. table name:%s", table_meta_.name());

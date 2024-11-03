@@ -48,6 +48,7 @@ RC DescTableExecutor::execute(SQLStageEvent *sql_event)
     tuple_schema.append_cell(TupleCellSpec("", "Field", "Field"));
     tuple_schema.append_cell(TupleCellSpec("", "Type", "Type"));
     tuple_schema.append_cell(TupleCellSpec("", "Length", "Length"));
+    tuple_schema.append_cell(TupleCellSpec("", "Nullable", "Nullable"));
 
     sql_result->set_tuple_schema(tuple_schema);
 
