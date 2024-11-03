@@ -17,6 +17,6 @@ See the Mulan PSL v2 for more details. */
 #include "common/value.h"
 
 RC NullType::to_string(const Value &val, string &result) const{
-    result = "<null>";
+    result = "NULL";
     return RC::SUCCESS;
 }
