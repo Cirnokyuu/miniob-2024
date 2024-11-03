@@ -61,27 +61,27 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
   int field_offset  = 0;
   int trx_field_num = 0;
 
-  if (trx_fields != nullptr) {
-    trx_fields_ = *trx_fields;
+  if (trx_fields != nullptr) trx_field_num = static_cast<int>(trx_fields->size());
+  int sys_field_num = trx_field_num + 1; // __null
+  fields_.resize(attributes.size() + sys_field_num);
+  
+  int null_len = (sys_field_num + attributes.size() + 7) / 8; // one field one bit
+  fields_[0] = FieldMeta("__null", AttrType::CHARS, 0, null_len, false, false,0);
+  field_offset += null_len;
 
-    fields_.resize(attributes.size() + trx_fields->size());
+  if (trx_fields != nullptr) {
     for (size_t i = 0; i < trx_fields->size(); i++) {
       const FieldMeta &field_meta = (*trx_fields)[i];
-      fields_[i] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false /*visible*/, field_meta.nullable() /*nullable*/, field_meta.field_id());
+      fields_[i+1] = FieldMeta(field_meta.name(), field_meta.type(), field_offset, field_meta.len(), false /*visible*/, field_meta.nullable() /*nullable*/, field_meta.field_id());
       field_offset += field_meta.len();
     }
-
-    trx_field_num = static_cast<int>(trx_fields->size());
-  } else {
-    fields_.resize(attributes.size());
   }
 
   for (size_t i = 0; i < attributes.size(); i++) {
     const AttrInfoSqlNode &attr_info = attributes[i];
     // `i` is the col_id of fields[i]
-    rc = fields_[i + trx_field_num].init(
-      // 多写代码少睡觉
-      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/, attr_info.nullable /*nullable*/ ,i);
+    rc = fields_[i + sys_field_num].init(
+      attr_info.name.c_str(), attr_info.type, field_offset, attr_info.length, true /*visible*/, attr_info.nullable /*nullable*/ ,i+1);
     if (OB_FAIL(rc)) {
       LOG_ERROR("Failed to init field meta. table name=%s, field name: %s", name, attr_info.name.c_str());
       return rc;
