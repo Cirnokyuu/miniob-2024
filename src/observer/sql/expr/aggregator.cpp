@@ -65,7 +65,7 @@ RC SumAggregator::accumulate(const Value &value)
 RC SumAggregator::evaluate(Value& result)
 {
   if(value_.attr_type()==AttrType::UNDEFINED){
-    result=Value((int)0);
+    result.set_null();
     return RC::SUCCESS;
   }
   result = value_;
