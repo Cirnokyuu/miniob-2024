@@ -88,6 +88,10 @@ RC AvgAggregator::accumulate(const Value &value)
 
 RC AvgAggregator::evaluate(Value& result)
 {
+  if(count_==0){
+    result.set_null();
+    return RC::SUCCESS;
+  }
   RC rc = Value::divide(value_,Value(count_),result);
   return rc;
 }

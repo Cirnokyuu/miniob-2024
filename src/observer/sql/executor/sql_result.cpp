@@ -30,13 +30,13 @@ RC SqlResult::open()
 
   Trx *trx = session_->current_trx();
   trx->start_if_need();
-  if(operator_->children().size()==1){
-    LOG_INFO("%s",(operator_->children())[0]->name().c_str());
-    auto child = (operator_->children())[0]->current_tuple();
-    if(child!=nullptr){
-      LOG_INFO("%d",child->cell_num());
-    }
-  }
+  // if(operator_->children().size()==1){
+  //   LOG_INFO("%s",(operator_->children())[0]->name().c_str());
+  //   auto child = (operator_->children())[0]->current_tuple();
+  //   if(child!=nullptr){
+  //     LOG_INFO("%d",child->cell_num());
+  //   }
+  // }
   return operator_->open(trx);
 }
 
