@@ -17,14 +17,12 @@ See the Mulan PSL v2 for more details. */
 
 RC CountAggregator::accumulate(const Value &value)
 {
-  if (value_.attr_type() == AttrType::UNDEFINED) {
-    LOG_INFO("INIT");
-    value_ = value;
-    count_ = (value.attr_type()!=AttrType::NULLS);
+  if(value.attr_type()==AttrType::NULLS){
     return RC::SUCCESS;
   }
-  if(value.attr_type()==AttrType::NULLS){
-    LOG_INFO("NULL laile");
+  if (value_.attr_type() == AttrType::UNDEFINED) {
+    value_ = value;
+    count_ = 1;
     return RC::SUCCESS;
   }
   ASSERT(value.attr_type() == value_.attr_type(), "type mismatch. value type: %s, value_.type: %s", 
@@ -37,6 +35,9 @@ RC CountAggregator::accumulate(const Value &value)
 
 RC CountAggregator::evaluate(Value& result)
 {
+  if (value_.attr_type() == AttrType::UNDEFINED) {
+    count_=0;
+  }
   result = Value(count_);
   LOG_INFO("%d",count_);
   return RC::SUCCESS;
@@ -44,12 +45,12 @@ RC CountAggregator::evaluate(Value& result)
 
 RC SumAggregator::accumulate(const Value &value)
 {
-  if (value_.attr_type() == AttrType::UNDEFINED) {
-    value_ = value;
-    count_ = (value.attr_type()!=AttrType::NULLS);
+  if(value.attr_type()==AttrType::NULLS){
     return RC::SUCCESS;
   }
-  if(value.attr_type()==AttrType::NULLS){
+  if (value_.attr_type() == AttrType::UNDEFINED) {
+    value_ = value;
+    count_ = 1;
     return RC::SUCCESS;
   }
   
@@ -63,18 +64,22 @@ RC SumAggregator::accumulate(const Value &value)
 
 RC SumAggregator::evaluate(Value& result)
 {
+  if(value_.attr_type()==AttrType::UNDEFINED){
+    result=Value((int)0);
+    return RC::SUCCESS;
+  }
   result = value_;
   return RC::SUCCESS;
 }
 
 RC AvgAggregator::accumulate(const Value &value)
 {
-  if (value_.attr_type() == AttrType::UNDEFINED) {
-    value_ = value;
-    count_ = (value.attr_type()!=AttrType::NULLS);
+  if(value.attr_type()==AttrType::NULLS){
     return RC::SUCCESS;
   }
-  if(value.attr_type()==AttrType::NULLS){
+  if (value_.attr_type() == AttrType::UNDEFINED) {
+    value_ = value;
+    count_ = 1;
     return RC::SUCCESS;
   }
   
@@ -88,6 +93,10 @@ RC AvgAggregator::accumulate(const Value &value)
 
 RC AvgAggregator::evaluate(Value& result)
 {
+  if (value_.attr_type() == AttrType::UNDEFINED) {
+    result.set_null();
+    return RC::SUCCESS;
+  }
   if(count_==0){
     result.set_null();
     return RC::SUCCESS;
@@ -99,12 +108,12 @@ RC AvgAggregator::evaluate(Value& result)
 
 RC MaxAggregator::accumulate(const Value &value)
 {
-  if (value_.attr_type() == AttrType::UNDEFINED) {
-    value_ = value;
-    count_ = (value.attr_type()!=AttrType::NULLS);
+  if(value.attr_type()==AttrType::NULLS){
     return RC::SUCCESS;
   }
-  if(value.attr_type()==AttrType::NULLS){
+  if (value_.attr_type() == AttrType::UNDEFINED) {
+    value_ = value;
+    count_ = 1;
     return RC::SUCCESS;
   }
   
@@ -120,18 +129,22 @@ RC MaxAggregator::accumulate(const Value &value)
 
 RC MaxAggregator::evaluate(Value& result)
 {
+  if (value_.attr_type() == AttrType::UNDEFINED) {
+    result.set_null();
+    return RC::SUCCESS;
+  }
   result = value_;
   return RC::SUCCESS;
 }
 
 RC MinAggregator::accumulate(const Value &value)
 {
-  if (value_.attr_type() == AttrType::UNDEFINED) {
-    value_ = value;
-    count_ = (value.attr_type()!=AttrType::NULLS);
+  if(value.attr_type()==AttrType::NULLS){
     return RC::SUCCESS;
   }
-  if(value.attr_type()==AttrType::NULLS){
+  if (value_.attr_type() == AttrType::UNDEFINED) {
+    value_ = value;
+    count_ = 1;
     return RC::SUCCESS;
   }
   
@@ -147,6 +160,10 @@ RC MinAggregator::accumulate(const Value &value)
 
 RC MinAggregator::evaluate(Value& result)
 {
+  if (value_.attr_type() == AttrType::UNDEFINED) {
+    result.set_null();
+    return RC::SUCCESS;
+  }
   result = value_;
   return RC::SUCCESS;
 }
