@@ -92,8 +92,9 @@ RC AvgAggregator::evaluate(Value& result)
     result.set_null();
     return RC::SUCCESS;
   }
-  RC rc = Value::divide(value_,Value(count_),result);
-  return rc;
+  float res = value_.get_float()/count_;
+  result=Value(res);
+  return RC::SUCCESS;
 }
 
 RC MaxAggregator::accumulate(const Value &value)
