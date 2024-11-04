@@ -56,6 +56,7 @@ AggregateVecPhysicalOperator::AggregateVecPhysicalOperator(vector<Expression *> 
 RC AggregateVecPhysicalOperator::open(Trx *trx)
 {
   ASSERT(children_.size() == 1, "group by operator only support one child, but got %d", children_.size());
+  LOG_INFO("%d",children_[0]->current_tuple()->cell_num());
 
   PhysicalOperator &child = *children_[0];
   RC                rc    = child.open(trx);

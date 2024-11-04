@@ -89,7 +89,8 @@ RC ExpressionBinder::bind_expression(unique_ptr<Expression> &expr, vector<unique
     } break;
 
     case ExprType::AGGREGATION: {
-      ASSERT(false, "shouldn't be here");
+      ASSERT(false,"shouldn't be here");
+      //return bind_aggregate_expression(expr, bound_expressions);
     } break;
 
     default: {
@@ -369,6 +370,10 @@ RC check_aggregate_expression(AggregateExpr &expression)
   AggregateExpr::Type aggregate_type   = expression.aggregate_type();
   AttrType            child_value_type = child_expression->value_type();
   switch (aggregate_type) {
+    case AggregateExpr::Type::BUZHIDAO:{
+      LOG_WARN("buzhidao");
+      return RC::INVALID_ARGUMENT;
+    }
     case AggregateExpr::Type::SUM:
     case AggregateExpr::Type::AVG: {
       // 仅支持数值类型
@@ -377,7 +382,6 @@ RC check_aggregate_expression(AggregateExpr &expression)
         return RC::INVALID_ARGUMENT;
       }
     } break;
-
     case AggregateExpr::Type::COUNT:
     case AggregateExpr::Type::MAX:
     case AggregateExpr::Type::MIN: {
@@ -411,6 +415,8 @@ RC ExpressionBinder::bind_aggregate_expression(
   auto unbound_aggregate_expr = static_cast<UnboundAggregateExpr *>(expr.get());
   const char *aggregate_name = unbound_aggregate_expr->aggregate_name();
   AggregateExpr::Type aggregate_type;
+  LOG_INFO("%d",strlen(aggregate_name));
+  LOG_INFO("%s",aggregate_name);
   RC rc = AggregateExpr::type_from_string(aggregate_name, aggregate_type);
   if (OB_FAIL(rc)) {
     LOG_WARN("invalid aggregate name: %s", aggregate_name);

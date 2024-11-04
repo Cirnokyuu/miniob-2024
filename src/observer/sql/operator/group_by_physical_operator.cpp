@@ -23,6 +23,7 @@ using namespace common;
 
 GroupByPhysicalOperator::GroupByPhysicalOperator(vector<Expression *> &&expressions)
 {
+  LOG_INFO("GroupByPhysicalOperator");
   aggregate_expressions_ = std::move(expressions);
   value_expressions_.reserve(aggregate_expressions_.size());
   ranges::for_each(aggregate_expressions_, [this](Expression *expr) {
@@ -35,6 +36,7 @@ GroupByPhysicalOperator::GroupByPhysicalOperator(vector<Expression *> &&expressi
 
 void GroupByPhysicalOperator::create_aggregator_list(AggregatorList &aggregator_list)
 {
+  LOG_INFO("create_aggregator_list");
   aggregator_list.clear();
   aggregator_list.reserve(aggregate_expressions_.size());
   ranges::for_each(aggregate_expressions_, [&aggregator_list](Expression *expr) {
@@ -45,6 +47,7 @@ void GroupByPhysicalOperator::create_aggregator_list(AggregatorList &aggregator_
 
 RC GroupByPhysicalOperator::aggregate(AggregatorList &aggregator_list, const Tuple &tuple)
 {
+  LOG_INFO("aggregate");
   ASSERT(static_cast<int>(aggregator_list.size()) == tuple.cell_num(), 
          "aggregator list size must be equal to tuple size. aggregator num: %d, tuple num: %d",
          aggregator_list.size(), tuple.cell_num());
@@ -73,6 +76,7 @@ RC GroupByPhysicalOperator::aggregate(AggregatorList &aggregator_list, const Tup
 
 RC GroupByPhysicalOperator::evaluate(GroupValueType &group_value)
 {
+  LOG_INFO("evaluate");
   RC rc = RC::SUCCESS;
 
   vector<TupleCellSpec> aggregator_names;
@@ -85,9 +89,12 @@ RC GroupByPhysicalOperator::evaluate(GroupValueType &group_value)
 
   ValueListTuple evaluated_tuple;
   vector<Value>  values;
+
+  LOG_INFO("agg size: %d",static_cast<int>(aggregators.size()) );
   for (unique_ptr<Aggregator> &aggregator : aggregators) {
     Value value;
     rc = aggregator->evaluate(value);
+    LOG_INFO(value.to_string().c_str());
     if (OB_FAIL(rc)) {
       LOG_WARN("failed to evaluate aggregator. rc=%s", strrc(rc));
       return rc;

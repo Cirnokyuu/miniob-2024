@@ -210,6 +210,9 @@ public:
     } else {
       FieldExpr       *field_expr = speces_[index];
       const FieldMeta *field_meta = field_expr->field().meta();
+      if(0==strcmp(field_meta->name(),"__my_null_field__")){
+        LOG_WARN("LOL");
+      }
       cell.set_type(field_meta->type());
       cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
     }
@@ -376,6 +379,7 @@ public:
   static RC make(const Tuple &tuple, ValueListTuple &value_list)
   {
     const int cell_num = tuple.cell_num();
+    LOG_INFO("%d",cell_num);
     for (int i = 0; i < cell_num; i++) {
       Value cell;
       RC    rc = tuple.cell_at(i, cell);
@@ -388,7 +392,11 @@ public:
       if (OB_FAIL(rc)) {
         return rc;
       }
-
+      if(i==0 && cell.attr_type()==AttrType::CHARS){
+        if(cell.to_string().size()==0){
+          continue;
+        }
+      }
       value_list.cells_.push_back(cell);
       value_list.specs_.push_back(spec);
     }

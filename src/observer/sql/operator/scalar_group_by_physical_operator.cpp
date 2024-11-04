@@ -30,13 +30,13 @@ RC ScalarGroupByPhysicalOperator::open(Trx *trx)
 
   PhysicalOperator &child = *children_[0];
   RC                rc    = child.open(trx);
+  LOG_INFO("%d",children_[0]->current_tuple()->cell_num());
   if (OB_FAIL(rc)) {
     LOG_INFO("failed to open child operator. rc=%s", strrc(rc));
     return rc;
   }
 
   ExpressionTuple<Expression *> group_value_expression_tuple(value_expressions_);
-
   ValueListTuple group_by_evaluated_tuple;
 
   while (OB_SUCC(rc = child.next())) {
@@ -52,6 +52,7 @@ RC ScalarGroupByPhysicalOperator::open(Trx *trx)
     // 计算聚合值
     if (group_value_ == nullptr) {
       AggregatorList aggregator_list;
+      LOG_INFO("NIHAO");
       create_aggregator_list(aggregator_list);
 
       ValueListTuple child_tuple_to_value;

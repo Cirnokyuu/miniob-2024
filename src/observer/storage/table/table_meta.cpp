@@ -62,12 +62,12 @@ RC TableMeta::init(int32_t table_id, const char *name, const std::vector<FieldMe
   int trx_field_num = 0;
 
   if (trx_fields != nullptr) trx_field_num = static_cast<int>(trx_fields->size());
-  int sys_field_num = trx_field_num + 1; // __null
+  int sys_field_num = trx_field_num + 1;
   fields_.resize(attributes.size() + sys_field_num);
   
-  int null_len = (sys_field_num + attributes.size() + 7) / 8; // one field one bit
-  fields_[0] = FieldMeta("__null", AttrType::CHARS, 0, null_len, false, false,0);
-  field_offset += null_len;
+  int null_field_len = (sys_field_num + attributes.size() + 15) / 8;
+  fields_[0] = FieldMeta("__my_null_field__", AttrType::CHARS, 0, null_field_len, false, false, 0);
+  field_offset += null_field_len;
 
   if (trx_fields != nullptr) {
     for (size_t i = 0; i < trx_fields->size(); i++) {

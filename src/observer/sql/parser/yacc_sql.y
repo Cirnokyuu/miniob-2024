@@ -186,6 +186,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <sql_node>            command_wrapper
 %type <boolean>             null_option
 %type <boolean>             is_null_comp
+%type <expression>          aggr_expr
 // commands should be a list but I use a single command instead
 %type <sql_node>            commands
 
@@ -568,7 +569,24 @@ expression:
     | '*' {
       $$ = new StarExpr();
     }
+    | aggr_expr {
+      $$ = $1;
+    }
     // your code here
+    ;
+aggr_expr:
+    ID LBRACE expression RBRACE
+    {
+      Expression* aggexpr = $3;
+      if ($3->type() == ExprType::FIELD) {
+        FieldExpr* field_expr = static_cast<FieldExpr*>($3);
+        if (0 == strcmp(field_expr->field_name(), "*")) {
+          aggexpr = new ValueExpr(Value(1));
+          delete $3;
+        }
+      }
+      $$ = create_aggregate_expression($1, aggexpr, sql_string, &@$);
+    }
     ;
 
 rel_attr:

@@ -414,7 +414,7 @@ public:
 
   ExprType type() const override { return ExprType::UNBOUND_AGGREGATION; }
 
-  const char *aggregate_name() const { return aggregate_name_.c_str(); }
+  const char *aggregate_name() const { LOG_INFO("%s", aggregate_name_.c_str()); return aggregate_name_.c_str(); }
 
   std::unique_ptr<Expression> &child() { return child_; }
 
@@ -426,6 +426,8 @@ private:
   std::unique_ptr<Expression> child_;
 };
 
+
+//聚合
 class AggregateExpr : public Expression
 {
 public:
@@ -436,6 +438,7 @@ public:
     AVG,
     MAX,
     MIN,
+    BUZHIDAO,
   };
 
 public:

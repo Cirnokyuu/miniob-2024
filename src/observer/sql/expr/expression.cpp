@@ -605,10 +605,28 @@ bool AggregateExpr::equal(const Expression &other) const
 
 unique_ptr<Aggregator> AggregateExpr::create_aggregator() const
 {
+  LOG_INFO("create_aggregator");
   unique_ptr<Aggregator> aggregator;
   switch (aggregate_type_) {
+    case Type::COUNT: {
+      LOG_INFO("count");
+      aggregator = make_unique<CountAggregator>();
+      break;
+    }
     case Type::SUM: {
       aggregator = make_unique<SumAggregator>();
+      break;
+    }
+    case Type::AVG: {
+      aggregator = make_unique<AvgAggregator>();
+      break;
+    }
+    case Type::MAX: {
+      aggregator = make_unique<MaxAggregator>();
+      break;
+    }
+    case Type::MIN: {
+      aggregator = make_unique<MinAggregator>();
       break;
     }
     default: {
@@ -626,7 +644,9 @@ RC AggregateExpr::get_value(const Tuple &tuple, Value &value) const
 
 RC AggregateExpr::type_from_string(const char *type_str, AggregateExpr::Type &type)
 {
-  RC rc = RC::SUCCESS;
+  LOG_INFO("%d",strlen(type_str));
+  if(!strlen(type_str))return RC::INVALID_ARGUMENT;
+  LOG_INFO("%s",type_str);
   if (0 == strcasecmp(type_str, "count")) {
     type = Type::COUNT;
   } else if (0 == strcasecmp(type_str, "sum")) {
@@ -638,7 +658,7 @@ RC AggregateExpr::type_from_string(const char *type_str, AggregateExpr::Type &ty
   } else if (0 == strcasecmp(type_str, "min")) {
     type = Type::MIN;
   } else {
-    rc = RC::INVALID_ARGUMENT;
+    return RC::INVALID_ARGUMENT;
   }
-  return rc;
+  return RC::SUCCESS;
 }
