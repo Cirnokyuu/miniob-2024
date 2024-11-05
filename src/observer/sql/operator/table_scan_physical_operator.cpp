@@ -72,7 +72,9 @@ RC TableScanPhysicalOperator::filter(RowTuple &tuple, bool &result)
 {
   RC    rc = RC::SUCCESS;
   Value value;
+  LOG_INFO("filter tuple %s", tuple.to_string().c_str());
   for (unique_ptr<Expression> &expr : predicates_) {
+    LOG_INFO("GET VALUE");
     rc = expr->get_value(tuple, value);
     if (rc != RC::SUCCESS) {
       return rc;

@@ -165,7 +165,10 @@ public:
   ExprType type() const override { return ExprType::UNBOUND_FIELD; }
   AttrType value_type() const override { return AttrType::UNDEFINED; }
 
-  RC get_value(const Tuple &tuple, Value &value) const override { return RC::INTERNAL; }
+  RC get_value(const Tuple &tuple, Value &value) const override { 
+    LOG_WARN("UnboundFieldExpr get_value not implemented");
+    return RC::INTERNAL;
+  }
 
   const char *table_name() const { return table_name_.c_str(); }
   const char *field_name() const { return field_name_.c_str(); }

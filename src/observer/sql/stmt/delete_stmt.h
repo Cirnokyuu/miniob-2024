@@ -28,7 +28,7 @@ class DeleteStmt : public Stmt
 {
 public:
   DeleteStmt(Table *table, FilterStmt *filter_stmt);
-  ~DeleteStmt() override;
+  ~DeleteStmt() = default;
 
   Table      *table() const { return table_; }
   FilterStmt *filter_stmt() const { return filter_stmt_; }

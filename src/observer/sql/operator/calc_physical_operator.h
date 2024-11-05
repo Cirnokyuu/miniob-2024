@@ -42,13 +42,16 @@ public:
     emitted_ = true;
 
     int cell_num = tuple_.cell_num();
+    LOG_DEBUG("cell_num %d", cell_num);
     for (int i = 0; i < cell_num; i++) {
       Value value;
+      LOG_DEBUG("cell_at %d", i);
       rc = tuple_.cell_at(i, value);
       if (OB_FAIL(rc)) {
         return rc;
       }
     }
+    LOG_DEBUG("next return success");
     return RC::SUCCESS;
   }
   RC close() override { return RC::SUCCESS; }
@@ -63,6 +66,7 @@ public:
   {
     for (const std::unique_ptr<Expression> &expression : expressions_) {
       schema.append_cell(expression->name());
+      LOG_INFO("schema append cell %s", expression->name());
     }
     return RC::SUCCESS;
   }

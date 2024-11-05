@@ -33,6 +33,11 @@ public:
 
   RC cell_at(int index, Value &cell) const override
   {
+    // const char* bomb = nullptr;
+    // vector<int> v;
+    // LOG_DEBUG("bomb %c", bomb[2]);
+    // LOG_DEBUG("vector %d", v[2]);
+    LOG_DEBUG("expr tup cell at %d", index);
     if (index < 0 || index >= cell_num()) {
       return RC::INVALID_ARGUMENT;
     }
@@ -54,6 +59,7 @@ public:
 
   RC find_cell(const TupleCellSpec &spec, Value &cell) const override
   {
+    LOG_DEBUG("find cell by spec %s", spec.alias());
     RC rc = RC::SUCCESS;
     if (child_tuple_ != nullptr) {
       rc = child_tuple_->find_cell(spec, cell);
@@ -76,10 +82,12 @@ public:
 private:
   RC get_value(const ExprPointerType &expression, Value &value) const
   {
+    LOG_DEBUG("get value from expression tuple");
     RC rc = RC::SUCCESS;
     if (child_tuple_ != nullptr) {
       rc = expression->get_value(*child_tuple_, value);
     } else {
+      LOG_DEBUG("child tuple is null");
       rc = expression->try_get_value(value);
     }
     return rc;

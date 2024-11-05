@@ -42,9 +42,12 @@ RC ProjectPhysicalOperator::open(Trx *trx)
 
 RC ProjectPhysicalOperator::next()
 {
+  LOG_DEBUG("ProjectPhysicalOperator next");
   if (children_.empty()) {
+    LOG_DEBUG("ProjectPhysicalOperator children empty");
     return RC::RECORD_EOF;
   }
+  LOG_DEBUG("children_[0] is %s", children_[0]->name().c_str());
   return children_[0]->next();
 }
 
@@ -65,6 +68,7 @@ RC ProjectPhysicalOperator::tuple_schema(TupleSchema &schema) const
 {
   for (const unique_ptr<Expression> &expression : expressions_) {
     schema.append_cell(expression->name());
+    LOG_INFO("schema append cell %s", expression->name());
   }
   return RC::SUCCESS;
 }

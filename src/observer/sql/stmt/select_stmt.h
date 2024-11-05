@@ -34,7 +34,7 @@ class SelectStmt : public Stmt
 {
 public:
   SelectStmt() = default;
-  ~SelectStmt() override;
+  ~SelectStmt() = default;
 
   StmtType type() const override { return StmtType::SELECT; }
 
@@ -47,10 +47,12 @@ public:
 
   std::vector<std::unique_ptr<Expression>> &query_expressions() { return query_expressions_; }
   std::vector<std::unique_ptr<Expression>> &group_by() { return group_by_; }
+  std::vector<std::unique_ptr<Expression>> &having() { return having_; }
 
 private:
   std::vector<std::unique_ptr<Expression>> query_expressions_;
   std::vector<Table *>                     tables_;
   FilterStmt                              *filter_stmt_ = nullptr;
   std::vector<std::unique_ptr<Expression>> group_by_;
+  std::vector<std::unique_ptr<Expression>> having_;
 };

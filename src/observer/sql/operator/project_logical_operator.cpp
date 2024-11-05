@@ -19,4 +19,8 @@ using namespace std;
 ProjectLogicalOperator::ProjectLogicalOperator(vector<unique_ptr<Expression>> &&expressions)
 {
   expressions_ = std::move(expressions);
+  //print the expressions
+  for (auto &expr : expressions_) {
+    LOG_DEBUG("expression: %s", expr->name());
+  }
 }

@@ -67,6 +67,8 @@ RC SqlResult::close()
 
 RC SqlResult::next_tuple(Tuple *&tuple)
 {
+  LOG_DEBUG("next_tuple");
+  LOG_DEBUG("operator_=%s", operator_.get()->name().c_str());
   RC rc = operator_->next();
   if (rc != RC::SUCCESS) {
     return rc;

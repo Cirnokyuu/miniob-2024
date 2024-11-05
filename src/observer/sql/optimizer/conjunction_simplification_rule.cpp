@@ -15,11 +15,15 @@ See the Mulan PSL v2 for more details. */
 #include "sql/optimizer/conjunction_simplification_rule.h"
 #include "common/log/log.h"
 #include "sql/expr/expression.h"
+#include <algorithm>
 
 RC try_to_get_bool_constant(std::unique_ptr<Expression> &expr, bool &constant_value)
 {
+  //assert if expr is null
+  ASSERT(expr != nullptr, "expr is null");
   if (expr->type() == ExprType::VALUE && expr->value_type() == AttrType::BOOLEANS) {
     auto value_expr = static_cast<ValueExpr *>(expr.get());
+    LOG_INFO("try_to_get_bool_constant");
     constant_value  = value_expr->get_value().get_boolean();
     return RC::SUCCESS;
   }
@@ -39,9 +43,17 @@ RC ConjunctionSimplificationRule::rewrite(std::unique_ptr<Expression> &expr, boo
 
   // 先看看有没有能够直接去掉的表达式。比如AND时恒为true的表达式可以删除
   // 或者是否可以直接计算出当前表达式的值。比如AND时，如果有一个表达式为false，那么整个表达式就是false
+  // for (auto iter = child_exprs.begin(); iter != child_exprs.end();) {
+  //   if(iter->get() == nullptr){
+  //     LOG_DEBUG("iter is null");
+  //   }
+  //   LOG_DEBUG("name of iter: %s", iter->get()->name());
+  // }
+  //remove the empty ptrs in child_exprs
+  child_exprs.erase(std::remove_if(child_exprs.begin(), child_exprs.end(), 
+    [](const std::unique_ptr<Expression> &expr) {return expr == nullptr; }), child_exprs.end());
   for (auto iter = child_exprs.begin(); iter != child_exprs.end();) {
     bool constant_value = false;
-
     rc                  = try_to_get_bool_constant(*iter, constant_value);
     if (rc != RC::SUCCESS) {
       rc = RC::SUCCESS;

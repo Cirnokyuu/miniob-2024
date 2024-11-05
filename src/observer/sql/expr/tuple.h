@@ -298,7 +298,7 @@ public:
     if (tuple_ == nullptr) {
       return RC::INTERNAL;
     }
-
+    LOG_INFO("cell_at %d",index);
     Expression *expr = expressions_[index].get();
     return expr->get_value(*tuple_, cell);
   }

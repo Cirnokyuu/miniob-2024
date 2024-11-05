@@ -175,7 +175,7 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
 
   if (index != nullptr) {
     ASSERT(value_expr != nullptr, "got an index but value expr is null ?");
-
+    LOG_INFO("create plan");
     const Value               &value           = value_expr->get_value();
     IndexScanPhysicalOperator *index_scan_oper = new IndexScanPhysicalOperator(table,
         index,
@@ -366,6 +366,12 @@ RC PhysicalPlanGenerator::create_plan(CalcLogicalOperator &logical_oper, std::un
 
   CalcPhysicalOperator *calc_oper = new CalcPhysicalOperator(std::move(logical_oper.expressions()));
   oper.reset(calc_oper);
+  const auto &exprs_ = calc_oper->expressions();
+  LOG_INFO("%d", exprs_.size());
+  for(auto &expr : exprs_) {
+    string name = expr->name();
+    LOG_INFO("%s", name.c_str());
+  }
   return rc;
 }
 

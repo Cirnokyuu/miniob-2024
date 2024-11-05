@@ -47,10 +47,13 @@ static void wildcard_fields(Table *table, vector<unique_ptr<Expression>> &expres
 
 RC ExpressionBinder::bind_expression(unique_ptr<Expression> &expr, vector<unique_ptr<Expression>> &bound_expressions)
 {
+  LOG_DEBUG("bind expression");
   if (nullptr == expr) {
+    LOG_DEBUG("expr is null");
     return RC::SUCCESS;
   }
-
+  //output the type of expression
+  LOG_INFO("expr: %d", expr->type());
   switch (expr->type()) {
     case ExprType::STAR: {
       return bind_star_expression(expr, bound_expressions);
@@ -136,6 +139,7 @@ RC ExpressionBinder::bind_star_expression(
 RC ExpressionBinder::bind_unbound_field_expression(
     unique_ptr<Expression> &expr, vector<unique_ptr<Expression>> &bound_expressions)
 {
+  LOG_DEBUG("bind unbound field expression");
   if (nullptr == expr) {
     return RC::SUCCESS;
   }

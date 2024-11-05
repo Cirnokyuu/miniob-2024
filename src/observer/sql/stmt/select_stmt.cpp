@@ -23,14 +23,6 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 using namespace common;
 
-SelectStmt::~SelectStmt()
-{
-  if (nullptr != filter_stmt_) {
-    delete filter_stmt_;
-    filter_stmt_ = nullptr;
-  }
-}
-
 RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
 {
   if (nullptr == db) {
@@ -64,8 +56,9 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
   // collect query fields in `select` statement
   vector<unique_ptr<Expression>> bound_expressions;
   ExpressionBinder expression_binder(binder_context);
-  
-  for (unique_ptr<Expression> &expression : select_sql.expressions) {
+
+  for (std::unique_ptr<Expression> &expression : select_sql.expressions) {
+    //output the type of expression
     RC rc = expression_binder.bind_expression(expression, bound_expressions);
     if (OB_FAIL(rc)) {
       LOG_INFO("bind expression failed. rc=%s", strrc(rc));
@@ -73,9 +66,33 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
     }
   }
 
+  vector<unique_ptr<Expression>> bound_condition;
+  std::unique_ptr<Expression> smd(select_sql.conditions);
+  if(nullptr == select_sql.conditions){
+    bound_condition.push_back(nullptr);
+    LOG_INFO("sql_condition is null");
+  }
+  else{
+    RC rrc = expression_binder.bind_expression(smd, bound_condition);
+    if (OB_FAIL(rrc)) {
+      LOG_INFO("bind expression failed. rc=%s", strrc(rrc));
+      return rrc;
+    }
+    ASSERT(bound_condition.size() == 1, "invalid condition size");
+  }
+
   vector<unique_ptr<Expression>> group_by_expressions;
-  for (unique_ptr<Expression> &expression : select_sql.group_by) {
+  for (std::unique_ptr<Expression> &expression : select_sql.group_by) {
     RC rc = expression_binder.bind_expression(expression, group_by_expressions);
+    if (OB_FAIL(rc)) {
+      LOG_INFO("bind expression failed. rc=%s", strrc(rc));
+      return rc;
+    }
+  }
+
+  vector<unique_ptr<Expression>> having_expressions;
+  for (std::unique_ptr<Expression> &expression : select_sql.having) {
+    RC rc = expression_binder.bind_expression(expression, having_expressions);
     if (OB_FAIL(rc)) {
       LOG_INFO("bind expression failed. rc=%s", strrc(rc));
       return rc;
@@ -92,8 +109,7 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
   RC          rc          = FilterStmt::create(db,
       default_table,
       &table_map,
-      select_sql.conditions.data(),
-      static_cast<int>(select_sql.conditions.size()),
+      std::move(bound_condition[0]),
       filter_stmt);
   if (rc != RC::SUCCESS) {
     LOG_WARN("cannot construct filter stmt");

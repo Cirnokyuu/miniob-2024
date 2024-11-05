@@ -34,7 +34,9 @@ RC ExecuteStage::handle_request(SQLStageEvent *sql_event)
   RC rc = RC::SUCCESS;
 
   const unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
+  
   if (physical_operator != nullptr) {
+    LOG_INFO("physical_operator not null.");
     return handle_request_with_physical_operator(sql_event);
   }
 
@@ -57,7 +59,7 @@ RC ExecuteStage::handle_request_with_physical_operator(SQLStageEvent *sql_event)
 
   unique_ptr<PhysicalOperator> &physical_operator = sql_event->physical_operator();
   ASSERT(physical_operator != nullptr, "physical operator should not be null");
-
+  
   SqlResult *sql_result = sql_event->session_event()->sql_result();
   sql_result->set_operator(std::move(physical_operator));
   return rc;

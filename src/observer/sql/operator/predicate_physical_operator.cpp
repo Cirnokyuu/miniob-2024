@@ -47,6 +47,7 @@ RC PredicatePhysicalOperator::next()
     }
 
     Value value;
+    LOG_INFO("tuple %s", tuple->to_string().c_str());
     rc = expression_->get_value(*tuple, value);
     if (rc != RC::SUCCESS) {
       return rc;

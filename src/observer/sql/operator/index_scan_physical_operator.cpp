@@ -125,6 +125,7 @@ RC IndexScanPhysicalOperator::filter(RowTuple &tuple, bool &result)
   RC    rc = RC::SUCCESS;
   Value value;
   for (std::unique_ptr<Expression> &expr : predicates_) {
+    LOG_INFO("tuple %s", tuple.to_string().c_str());
     rc = expr->get_value(tuple, value);
     if (rc != RC::SUCCESS) {
       return rc;

@@ -81,7 +81,7 @@ function do_init
     mkdir -p build && \
     cd build && \
     ${CMAKE_COMMAND} .. -DEVENT__DISABLE_OPENSSL=ON -DEVENT__LIBRARY_TYPE=BOTH && \
-    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} -j8 && \
     make install
 
   # build googletest
@@ -89,7 +89,7 @@ function do_init
     mkdir -p build && \
     cd build && \
     ${CMAKE_COMMAND} .. && \
-    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} -j8 && \
     ${MAKE_COMMAND} install
 
   # build google benchmark
@@ -97,7 +97,7 @@ function do_init
     mkdir -p build && \
     cd build && \
     ${CMAKE_COMMAND} .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBENCHMARK_ENABLE_TESTING=OFF  -DBENCHMARK_INSTALL_DOCS=OFF -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF && \
-    ${MAKE_COMMAND} -j4 && \
+    ${MAKE_COMMAND} -j8 && \
     ${MAKE_COMMAND} install
 
   # build jsoncpp

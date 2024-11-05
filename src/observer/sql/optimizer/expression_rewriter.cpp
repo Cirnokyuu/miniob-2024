@@ -32,6 +32,11 @@ RC ExpressionRewriter::rewrite(unique_ptr<LogicalOperator> &oper, bool &change_m
   bool sub_change_made = false;
 
   vector<unique_ptr<Expression>> &expressions = oper->expressions();
+  //output the expressions of oper
+  LOG_DEBUG("expressions size: %d", expressions.size());
+  for (auto &expr : expressions) {
+    LOG_DEBUG("expression: %s", expr->name());
+  }
   for (unique_ptr<Expression> &expr : expressions) {
     rc = rewrite_expression(expr, sub_change_made);
     if (rc != RC::SUCCESS) {
@@ -50,6 +55,10 @@ RC ExpressionRewriter::rewrite(unique_ptr<LogicalOperator> &oper, bool &change_m
   vector<unique_ptr<LogicalOperator>> &child_opers = oper->children();
   for (unique_ptr<LogicalOperator> &child_oper : child_opers) {
     bool sub_change_made = false;
+    //output the expressions of child_oper
+    for (auto &expr : child_oper->expressions()) {
+      LOG_DEBUG("expression: %s", expr->name());
+    }
     rc                   = rewrite(child_oper, sub_change_made);
     if (sub_change_made && !change_made) {
       change_made = true;
@@ -64,11 +73,12 @@ RC ExpressionRewriter::rewrite(unique_ptr<LogicalOperator> &oper, bool &change_m
 RC ExpressionRewriter::rewrite_expression(unique_ptr<Expression> &expr, bool &change_made)
 {
   RC rc = RC::SUCCESS;
-
+  LOG_DEBUG("rewrite_expression");
+  //output the expressions of expr
+  LOG_DEBUG("expression: %s", expr->name());
   change_made = false;
   for (unique_ptr<ExpressionRewriteRule> &rule : expr_rewrite_rules_) {
     bool sub_change_made = false;
-
     rc                   = rule->rewrite(expr, sub_change_made);
     if (sub_change_made && !change_made) {
       change_made = true;

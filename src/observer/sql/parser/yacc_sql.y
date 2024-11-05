@@ -117,11 +117,12 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         NOT
         NULL_T
         IS
+        HAVING
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
   ParsedSqlNode *                            sql_node;
-  ConditionSqlNode *                         condition;
+  Expression *                               condition;
   Value *                                    value;
   enum CompOp                                comp;
   RelAttrSqlNode *                           rel_attr;
@@ -130,7 +131,6 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   Expression *                               expression;
   std::vector<std::unique_ptr<Expression>> * expression_list;
   std::vector<Value> *                       value_list;
-  std::vector<ConditionSqlNode> *            condition_list;
   std::vector<RelAttrSqlNode> *              rel_attr_list;
   std::vector<std::string> *                 relation_list;
   char *                                     string;
@@ -156,8 +156,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <attr_infos>          attr_def_list
 %type <attr_info>           attr_def
 %type <value_list>          value_list
-%type <condition_list>      where
-%type <condition_list>      condition_list
+%type <expression>          where
+%type <expression>          having
 %type <string>              storage_format
 %type <relation_list>       rel_list
 %type <expression>          expression
@@ -455,8 +455,7 @@ delete_stmt:    /*  delete 语句的语法解析树*/
       $$ = new ParsedSqlNode(SCF_DELETE);
       $$->deletion.relation_name = $3;
       if ($4 != nullptr) {
-        $$->deletion.conditions.swap(*$4);
-        delete $4;
+        $$->deletion.conditions = $4;
       }
       free($3);
     }
@@ -469,24 +468,14 @@ update_stmt:      /*  update 语句的语法解析树*/
       $$->update.attribute_name = $4;
       $$->update.value = *$6;
       if ($7 != nullptr) {
-        $$->update.conditions.swap(*$7);
-        delete $7;
+        $$->update.conditions = $7;
       }
       free($2);
       free($4);
     }
     ;
 select_stmt:        /*  select 语句的语法解析树*/
-    SELECT expression_list
-    {
-      $$ = new ParsedSqlNode(SCF_SELECT);
-      if ($2 != nullptr) {
-        std::reverse($2->begin(), $2->end());
-        $$->selection.expressions.swap(*$2);
-        delete $2;
-      }
-    }
-    | SELECT expression_list FROM rel_list where group_by
+    SELECT expression_list FROM rel_list where group_by having
     {
       $$ = new ParsedSqlNode(SCF_SELECT);
       if ($2 != nullptr) {
@@ -500,12 +489,16 @@ select_stmt:        /*  select 语句的语法解析树*/
       }
 
       if ($5 != nullptr) {
-        $$->selection.conditions.swap(*$5);
-        delete $5;
+        $$->selection.conditions = $5;
       }
 
       if ($6 != nullptr) {
         $$->selection.group_by.swap(*$6);
+        delete $6;
+      }
+
+      if ($7 != nullptr) {
+        $$->selection.having.swap(*$6);
         delete $6;
       }
     }
@@ -581,6 +574,13 @@ aggr_expr:
       if ($3->type() == ExprType::FIELD) {
         FieldExpr* field_expr = static_cast<FieldExpr*>($3);
         if (0 == strcmp(field_expr->field_name(), "*")) {
+          AggregateExpr::Type typ;
+          AggregateExpr::type_from_string($1,typ);
+          if (typ != AggregateExpr::Type::COUNT){
+            delete $3;
+            yyerror(&@$, sql_string, sql_result, scanner, "only support count(*)");
+            YYERROR;
+          }
           aggexpr = new ValueExpr(Value(1));
           delete $3;
         }
@@ -632,7 +632,7 @@ where:
     {
       $$ = nullptr;
     }
-    | WHERE condition_list {
+    | WHERE condition {
       $$ = $2;  
     }
     ;
@@ -646,88 +646,15 @@ is_null_comp:
       $$ = false;
     }
     ;
-condition_list:
-    /* empty */
-    {
-      $$ = nullptr;
-    }
-    | condition {
-      $$ = new std::vector<ConditionSqlNode>;
-      $$->emplace_back(*$1);
-      delete $1;
-    }
-    | condition AND condition_list {
-      $$ = $3;
-      $$->emplace_back(*$1);
-      delete $1;
-    }
-    ;
+
 condition:
-    value is_null_comp
+    expression comp_op expression
     {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 0;
-      $$->left_value = *$1;
-      $$->right_is_attr = 0;
-      $$->right_value = *$1;
-      $$->comp = ($2 ? IS_NULL : IS_NOT_NULL);
+      $$ = new ComparisonExpr($2, $1, $3);
     }
-    | rel_attr is_null_comp
+    | expression is_null_comp
     {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 1;
-      $$->left_attr = *$1;
-      $$->right_is_attr = 1;
-      $$->right_attr = *$1;
-      $$->comp = ($2 ? IS_NULL : IS_NOT_NULL);
-    }
-    | rel_attr comp_op value
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 1;
-      $$->left_attr = *$1;
-      $$->right_is_attr = 0;
-      $$->right_value = *$3;
-      $$->comp = $2;
-
-      delete $1;
-      delete $3;
-    }
-    | value comp_op value 
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 0;
-      $$->left_value = *$1;
-      $$->right_is_attr = 0;
-      $$->right_value = *$3;
-      $$->comp = $2;
-
-      delete $1;
-      delete $3;
-    }
-    | rel_attr comp_op rel_attr
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 1;
-      $$->left_attr = *$1;
-      $$->right_is_attr = 1;
-      $$->right_attr = *$3;
-      $$->comp = $2;
-
-      delete $1;
-      delete $3;
-    }
-    | value comp_op rel_attr
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 0;
-      $$->left_value = *$1;
-      $$->right_is_attr = 1;
-      $$->right_attr = *$3;
-      $$->comp = $2;
-
-      delete $1;
-      delete $3;
+      $$ = new ComparisonExpr( ($2 ? IS_NULL : IS_NOT_NULL), $1, $1);
     }
     ;
 
@@ -748,7 +675,20 @@ group_by:
     {
       $$ = nullptr;
     }
+    | GROUP BY expression_list {
+      $$ = $3;  
+    }
     ;
+having:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | HAVING condition {
+      $$ = $2;
+    }
+    ;
+
 load_data_stmt:
     LOAD DATA INFILE SSS INTO TABLE ID 
     {

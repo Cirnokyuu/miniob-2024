@@ -21,6 +21,7 @@ using namespace std;
 
 RC FieldExpr::get_value(const Tuple &tuple, Value &value) const
 {
+  LOG_DEBUG("tuple %s", tuple.to_string().c_str());
   return tuple.find_cell(TupleCellSpec(table_name(), field_name()), value);
 }
 
@@ -62,6 +63,7 @@ bool ValueExpr::equal(const Expression &other) const
 
 RC ValueExpr::get_value(const Tuple &tuple, Value &value) const
 {
+  LOG_DEBUG("tuple %s", tuple.to_string().c_str());
   value = value_;
   return RC::SUCCESS;
 }
@@ -91,6 +93,7 @@ RC CastExpr::cast(const Value &value, Value &cast_value) const
 
 RC CastExpr::get_value(const Tuple &tuple, Value &result) const
 {
+  LOG_DEBUG("tuple %s", tuple.to_string().c_str());
   Value value;
   RC rc = child_->get_value(tuple, value);
   if (rc != RC::SUCCESS) {
@@ -102,6 +105,7 @@ RC CastExpr::get_value(const Tuple &tuple, Value &result) const
 
 RC CastExpr::try_get_value(Value &result) const
 {
+  LOG_DEBUG("try get value from cast expr");
   Value value;
   RC rc = child_->try_get_value(value);
   if (rc != RC::SUCCESS) {
@@ -203,6 +207,7 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
 
 RC ComparisonExpr::try_get_value(Value &cell) const
 {
+  LOG_DEBUG("try get value from comparison expr");
   if (left_->type() == ExprType::VALUE && right_->type() == ExprType::VALUE) {
     ValueExpr *  left_value_expr  = static_cast<ValueExpr *>(left_.get());
     ValueExpr *  right_value_expr = static_cast<ValueExpr *>(right_.get());
@@ -226,7 +231,11 @@ RC ComparisonExpr::get_value(const Tuple &tuple, Value &value) const
 {
   Value left_value;
   Value right_value;
-
+  
+  //output the tuple
+  LOG_DEBUG("tuple %s", tuple.to_string().c_str());
+  //output left expression
+  LOG_DEBUG("left_ %s", left_->name());
   RC rc = left_->get_value(tuple, left_value);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to get value of left expression. rc=%s", strrc(rc));
@@ -301,10 +310,18 @@ RC ComparisonExpr::compare_column(const Column &left, const Column &right, std::
 ////////////////////////////////////////////////////////////////////////////////
 ConjunctionExpr::ConjunctionExpr(Type type, vector<unique_ptr<Expression>> &children)
     : conjunction_type_(type), children_(std::move(children))
-{}
+{
+  for (auto iter = children.begin(); iter != children.end();) {
+    if(iter->get() == nullptr){
+      LOG_DEBUG("iter is null");
+    }
+    LOG_DEBUG("name of iter: %s", iter->get()->name());
+  }
+}
 
 RC ConjunctionExpr::get_value(const Tuple &tuple, Value &value) const
 {
+  LOG_DEBUG("tuple %s", tuple.to_string().c_str());
   RC rc = RC::SUCCESS;
   if (children_.empty()) {
     value.set_boolean(true);
@@ -369,6 +386,7 @@ AttrType ArithmeticExpr::value_type() const
 
 RC ArithmeticExpr::calc_value(const Value &left_value, const Value &right_value, Value &value) const
 {
+  LOG_DEBUG("calc_value");
   RC rc = RC::SUCCESS;
 
   const AttrType target_type = value_type();
@@ -480,7 +498,8 @@ RC ArithmeticExpr::execute_calc(
 RC ArithmeticExpr::get_value(const Tuple &tuple, Value &value) const
 {
   RC rc = RC::SUCCESS;
-
+  
+  LOG_DEBUG("tuple %s", tuple.to_string().c_str());
   Value left_value;
   Value right_value;
 
@@ -499,6 +518,7 @@ RC ArithmeticExpr::get_value(const Tuple &tuple, Value &value) const
 
 RC ArithmeticExpr::get_column(Chunk &chunk, Column &column)
 {
+  LOG_INFO("get_column");
   RC rc = RC::SUCCESS;
   if (pos_ != -1) {
     column.reference(chunk.column(pos_));
@@ -522,6 +542,8 @@ RC ArithmeticExpr::get_column(Chunk &chunk, Column &column)
 
 RC ArithmeticExpr::calc_column(const Column &left_column, const Column &right_column, Column &column) const
 {
+  
+  LOG_INFO("calc_column");
   RC rc = RC::SUCCESS;
 
   const AttrType target_type = value_type();
@@ -546,11 +568,13 @@ RC ArithmeticExpr::calc_column(const Column &left_column, const Column &right_co
 
 RC ArithmeticExpr::try_get_value(Value &value) const
 {
+  LOG_INFO("try_get_value");
   RC rc = RC::SUCCESS;
 
   Value left_value;
   Value right_value;
 
+  LOG_DEBUG("left_->try_get_value");
   rc = left_->try_get_value(left_value);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to get value of left expression. rc=%s", strrc(rc));
@@ -558,6 +582,7 @@ RC ArithmeticExpr::try_get_value(Value &value) const
   }
 
   if (right_) {
+    LOG_DEBUG("right_->try_get_value");
     rc = right_->try_get_value(right_value);
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to get value of right expression. rc=%s", strrc(rc));
@@ -639,6 +664,7 @@ unique_ptr<Aggregator> AggregateExpr::create_aggregator() const
 
 RC AggregateExpr::get_value(const Tuple &tuple, Value &value) const
 {
+  LOG_DEBUG("tuple %s", tuple.to_string().c_str());
   return tuple.find_cell(TupleCellSpec(name()), value);
 }
 
