@@ -17,9 +17,12 @@ See the Mulan PSL v2 for more details. */
 #include "sql/stmt/filter_stmt.h"
 #include "storage/db/db.h"
 #include "storage/table/table.h"
+#include "sql/parser/expression_binder.h"
 
 RC UpdateStmt::create(Db *db, const UpdateSqlNode &update, Stmt *&stmt)
 {
+  BinderContext binder_context;
+
   const char *table_name = update.relation_name.c_str();
   if (nullptr == db || nullptr == table_name) {
     LOG_WARN("invalid argument. db=%p, table_name=%p", db, table_name);
@@ -42,18 +45,34 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update, Stmt *&stmt)
   }
 
 // copy from delete
+  binder_context.add_table(table);
   std::unordered_map<std::string, Table *> table_map;
   table_map.insert(std::pair<std::string, Table *>(std::string(table_name), table));
 
-  std::unique_ptr<Expression> conditions(update.conditions);
+  ExpressionBinder expression_binder(binder_context);
+  vector<unique_ptr<Expression>> bound_condition;
+  std::unique_ptr<Expression> smd(update.conditions);
+  if(nullptr == update.conditions){
+    bound_condition.push_back(nullptr);
+    LOG_INFO("sql_condition is null");
+  }
+  else{
+    RC rrc = expression_binder.bind_expression(smd, bound_condition);
+    if (OB_FAIL(rrc)) {
+      LOG_INFO("bind expression failed. rc=%s", strrc(rrc));
+      return rrc;
+    }
+    ASSERT(bound_condition.size() == 1, "invalid condition size");
+  }
+
   FilterStmt *filter_stmt = nullptr;
   RC          rc          = FilterStmt::create(
-      db, table, &table_map, std::move(conditions), filter_stmt);
+      db, table, &table_map, std::move(bound_condition[0]), filter_stmt);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to create filter statement. rc=%d:%s", rc, strrc(rc));
     return rc;
   }
 
   stmt = new UpdateStmt(table, field_meta, update.value, filter_stmt);
-  return RC::SUCCESS;
+  return rc;
 }
