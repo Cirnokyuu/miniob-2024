@@ -90,13 +90,19 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
     }
   }
 
-  vector<unique_ptr<Expression>> having_expressions;
-  for (std::unique_ptr<Expression> &expression : select_sql.having) {
-    RC rc = expression_binder.bind_expression(expression, having_expressions);
-    if (OB_FAIL(rc)) {
-      LOG_INFO("bind expression failed. rc=%s", strrc(rc));
-      return rc;
+  vector<unique_ptr<Expression>> having_condition;
+  std::unique_ptr<Expression> having_expr(select_sql.having);
+  if(nullptr == select_sql.having){
+    having_condition.push_back(nullptr);
+    LOG_INFO("sql_having is null");
+  }
+  else{
+    RC rrc = expression_binder.bind_expression(having_expr, having_condition);
+    if (OB_FAIL(rrc)) {
+      LOG_INFO("bind expression failed. rc=%s", strrc(rrc));
+      return rrc;
     }
+    ASSERT(having_condition.size() == 1, "invalid having size");
   }
 
   Table *default_table = nullptr;
@@ -123,6 +129,7 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
   select_stmt->query_expressions_.swap(bound_expressions);
   select_stmt->filter_stmt_ = filter_stmt;
   select_stmt->group_by_.swap(group_by_expressions);
+//  select_stmt->having_ = having_condition[0].release();
   stmt                      = select_stmt;
   return RC::SUCCESS;
 }

@@ -103,7 +103,7 @@ struct SelectSqlNode
   std::vector<std::string>                 relations;    ///< 查询的表
   Expression*                              conditions = nullptr;   ///< 查询条件，使用AND串联起来多个条件
   std::vector<std::unique_ptr<Expression>> group_by;     ///< group by clause
-  std::vector<std::unique_ptr<Expression>> having;     ///< group by clause
+  Expression*                              having = nullptr;     ///< group by clause
 };
 
 /**

@@ -190,6 +190,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 // commands should be a list but I use a single command instead
 %type <sql_node>            commands
 
+%left AND
 %left '+' '-'
 %left '*' '/'
 %nonassoc UMINUS
@@ -498,8 +499,7 @@ select_stmt:        /*  select 语句的语法解析树*/
       }
 
       if ($7 != nullptr) {
-        $$->selection.having.swap(*$6);
-        delete $6;
+        $$->selection.having = $7;
       }
     }
     ;
@@ -655,6 +655,15 @@ condition:
     | expression is_null_comp
     {
       $$ = new ComparisonExpr( ($2 ? IS_NULL : IS_NOT_NULL), $1, $1);
+    }
+    | condition AND condition
+    {
+      vector<std::unique_ptr<Expression>> paras;
+      std::unique_ptr<Expression> s1($1);
+      std::unique_ptr<Expression> s2($3);
+      paras.emplace_back(std::move(s1));
+      paras.emplace_back(std::move(s2));
+      $$ = new ConjunctionExpr(ConjunctionExpr::Type::AND, paras);
     }
     ;
 
