@@ -35,7 +35,7 @@ bool my_check_date(int y,int m,int d){
 
 RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
 {
-  LOG_INFO("To %s",attr_type_to_string(type));
+//  LOG_INFO("To %s",attr_type_to_string(type));
   switch (type) {
     case AttrType::DATES:
     {

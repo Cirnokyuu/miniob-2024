@@ -97,6 +97,7 @@ public:
 
   int operator()(const char *v1, const char *v2) const
   {
+    LOG_DEBUG("KeyComparator::operator()");
     int result = attr_comparator_(v1, v2);
     if (result != 0) {
       return result;

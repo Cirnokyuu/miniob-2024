@@ -24,6 +24,20 @@ IndexScanPhysicalOperator::IndexScanPhysicalOperator(Table *table, Index *index,
       left_inclusive_(left_inclusive),
       right_inclusive_(right_inclusive)
 {
+  // get the field type from index
+  AttrType typ =(index->field_meta().type());
+  if(typ == AttrType::DATES){
+    if(left_value->attr_type() == AttrType::CHARS){
+      DataType::type_instance(AttrType::CHARS)->cast_to(*left_value, AttrType::DATES,left_value_);
+    }
+    else left_value_ = *left_value;
+    if(right_value->attr_type() == AttrType::CHARS){
+      DataType::type_instance(AttrType::CHARS)->cast_to(*right_value, AttrType::DATES,right_value_);
+    }
+    else right_value_ = *right_value;
+    return;
+  }
+
   if (left_value) {
     left_value_ = *left_value;
   }

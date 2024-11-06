@@ -368,6 +368,7 @@ bool LeafIndexNodeHandler::validate(const KeyComparator &comparator, DiskBufferP
 
   const int node_size = size();
   for (int i = 1; i < node_size; i++) {
+    LOG_DEBUG("COMP4");
     if (comparator(__key_at(i - 1), __key_at(i)) >= 0) {
       LOG_WARN("page number = %d, invalid key order. id1=%d,id2=%d, this=%s",
                page_num(), i - 1, i, to_string(*this).c_str());
@@ -1154,6 +1155,7 @@ bool BplusTreeHandler::validate_leaf_link(BplusTreeMiniTransaction &mtr)
     }
 
     LeafIndexNodeHandler leaf_node(mtr, file_header_, frame);
+    LOG_DEBUG("COMP2");
     if (key_comparator_((char *)prev_key.get(), leaf_node.key_at(0)) >= 0) {
       LOG_WARN("invalid page. current first key is not bigger than last");
       result = false;
@@ -1384,6 +1386,7 @@ RC BplusTreeHandler::insert_entry_into_parent(BplusTreeMiniTransaction &mtr, Fra
       } else {
         // insert into left or right ? decide by key compare result
         InternalIndexNodeHandler new_node(mtr, file_header_, new_parent_frame);
+        LOG_DEBUG("COMP3");
         if (key_comparator_(key, new_node.key_at(0)) > 0) {
           new_node.insert(key, new_frame->page_num(), key_comparator_);
           new_node_handler.set_parent_page_num(new_node.page_num());
@@ -1995,6 +1998,7 @@ bool BplusTreeScanner::touch_end()
 
 RC BplusTreeScanner::next_entry(RID &rid)
 {
+  LOG_DEBUG("next entry");
   if (nullptr == current_frame_) {
     return RC::RECORD_EOF;
   }

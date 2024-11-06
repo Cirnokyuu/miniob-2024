@@ -34,11 +34,11 @@ RC Rewriter::rewrite(std::unique_ptr<LogicalOperator> &oper, bool &change_made)
   for (std::unique_ptr<RewriteRule> &rule : rewrite_rules_) {
     bool sub_change_made = false;
 
-    LOG_DEBUG("rule +1");
+    // LOG_DEBUG("rule +1");
     //output the expressions of oper
-    for (auto &expr : oper->expressions()) {
-      LOG_DEBUG("expression: %s", expr->name());
-    }
+    // for (auto &expr : oper->expressions()) {
+    //   LOG_DEBUG("expression: %s", expr->name());
+    // }
     
     rc = rule->rewrite(oper, sub_change_made);
 

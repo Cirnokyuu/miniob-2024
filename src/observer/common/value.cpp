@@ -190,6 +190,9 @@ void Value::set_value(const Value &value)
     case AttrType::INTS: {
       set_int(value.get_int());
     } break;
+    case AttrType::DATES: {
+      set_date(value.get_int());
+    } break;
     case AttrType::FLOATS: {
       set_float(value.get_float());
     } break;
@@ -241,7 +244,13 @@ string Value::to_string() const
   return res;
 }
 
-int Value::compare(const Value &other) const { return DataType::type_instance(this->attr_type_)->compare(*this, other); }
+int Value::compare(const Value &other) const {
+  if(this->is_null() || other.is_null()){
+    if(this->is_null() && other.is_null()) return 0;
+    else return -1;
+  }
+  return DataType::type_instance(this->attr_type_)->compare(*this, other);
+}
 
 int Value::get_int() const
 {
@@ -255,6 +264,9 @@ int Value::get_int() const
       }
     }
     case AttrType::INTS: {
+      return value_.int_value_;
+    }
+    case AttrType::DATES: {
       return value_.int_value_;
     }
     case AttrType::FLOATS: {

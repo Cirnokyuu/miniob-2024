@@ -99,6 +99,11 @@ public:
     value_.int_value_=y*10000+m*100+d;
     attr_type_ = AttrType::DATES;
   }
+  void set_date(int dat){
+    value_.int_value_=dat;
+    attr_type_ = AttrType::DATES;
+  }
+  
 
   string to_string() const;
 
