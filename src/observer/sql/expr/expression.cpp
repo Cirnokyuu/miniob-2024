@@ -508,6 +508,10 @@ RC ArithmeticExpr::get_value(const Tuple &tuple, Value &value) const
     LOG_WARN("failed to get value of left expression. rc=%s", strrc(rc));
     return rc;
   }
+  if(arithmetic_type_ == Type::NEGATIVE){
+    return calc_value(left_value, left_value, value);
+  }
+  
   rc = right_->get_value(tuple, right_value);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to get value of right expression. rc=%s", strrc(rc));

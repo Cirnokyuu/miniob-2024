@@ -46,6 +46,32 @@ IndexScanPhysicalOperator::IndexScanPhysicalOperator(Table *table, Index *index,
   }
 }
 
+bool my2_check_date(int x){
+  int y=x/10000,m=x%10000/100,d=x%100;
+  static int mon[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+  bool leap=(y%400==0||(y%100 && y%4==0));
+  return y>0 && y<=9999 && m>0 && m<13 && d>0 && d<=mon[m]+(m==2&&leap);
+}
+
+RC IndexScanPhysicalOperator::check_valid(){
+  if(left_value_.attr_type()==AttrType::DATES){
+    bool ret = my2_check_date(left_value_.get_int());
+    if(ret == false){
+      LOG_WARN("invalid date format: %d",left_value_.get_int());
+      return RC::INVALID_ARGUMENT;
+    }
+  }
+  if(right_value_.attr_type()==AttrType::DATES){
+    bool ret = my2_check_date(right_value_.get_int());
+    if(ret == false){
+      LOG_WARN("invalid date format: %d",right_value_.get_int());
+      return RC::INVALID_ARGUMENT;
+    }
+  }
+  return RC::SUCCESS;
+}
+
+
 RC IndexScanPhysicalOperator::open(Trx *trx)
 {
   if (nullptr == table_ || nullptr == index_) {

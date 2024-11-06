@@ -341,6 +341,11 @@ RC ExpressionBinder::bind_arithmetic_expression(
   if (left.get() != left_expr.get()) {
     left_expr.reset(left.release());
   }
+  
+  if(arithmetic_expr->arithmetic_type() == ArithmeticExpr::Type::NEGATIVE){
+    bound_expressions.emplace_back(std::move(expr));
+    return RC::SUCCESS;
+  }
 
   child_bound_expressions.clear();
   rc = bind_expression(right_expr, child_bound_expressions);

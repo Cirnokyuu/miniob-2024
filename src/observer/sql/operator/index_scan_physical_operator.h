@@ -37,6 +37,7 @@ public:
   RC open(Trx *trx) override;
   RC next() override;
   RC close() override;
+  RC check_valid() ;
 
   Tuple *current_tuple() override;
 

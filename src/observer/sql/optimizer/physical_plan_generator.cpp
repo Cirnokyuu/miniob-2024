@@ -184,7 +184,10 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
         true /*left_inclusive*/,
         &value,
         true /*right_inclusive*/);
-
+    RC rc = index_scan_oper->check_valid();
+    if(OB_FAIL(rc)){
+      return rc;
+    }
     index_scan_oper->set_predicates(std::move(predicates));
     oper = unique_ptr<PhysicalOperator>(index_scan_oper);
     LOG_TRACE("use index scan");
