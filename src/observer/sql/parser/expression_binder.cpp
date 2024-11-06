@@ -52,7 +52,8 @@ RC ExpressionBinder::bind_expression(unique_ptr<Expression> &expr, vector<unique
     LOG_DEBUG("expr is null");
     return RC::SUCCESS;
   }
-  //output the type of expression
+  //output the expression
+  LOG_INFO("expr: %s", expr->name());
   LOG_INFO("expr: %d", expr->type());
   switch (expr->type()) {
     case ExprType::STAR: {

@@ -15,11 +15,29 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/type/date_type.h"
 #include "common/value.h"
+#include "common/type/char_type.h"
 
 int DateType::compare(const Value &left, const Value &right) const
 {
-    LOG_INFO("HAHA!");
-    return common::compare_int((void *)&left.value_.int_value_,(void *)&right.value_.int_value_);
+    LOG_INFO("left type: %s; right type: %s", attr_type_to_string(left.attr_type()), attr_type_to_string(right.attr_type()));
+    LOG_INFO("left name:%s, int value: %d", left.to_string().c_str(),left.value_.int_value_);
+    LOG_INFO("right name:%s, int value: %d", right.to_string().c_str(),right.value_.int_value_);
+    Value true_left = left;
+    Value true_right = right;
+    if(left.attr_type()==AttrType::CHARS){
+      Value tmp;
+      DataType::type_instance(AttrType::CHARS)->cast_to(left,AttrType::DATES,tmp);
+      true_left=tmp;
+    }
+    if(right.attr_type()==AttrType::CHARS){
+      Value tmp;
+      DataType::type_instance(AttrType::CHARS)->cast_to(right,AttrType::DATES,tmp);
+      true_right=tmp;
+    }
+    LOG_INFO("true left type: %s; true right type: %s", attr_type_to_string(true_left.attr_type()), attr_type_to_string(true_right.attr_type()));
+    LOG_INFO("true left name:%s, int value: %d", true_left.to_string().c_str(),true_left.value_.int_value_);
+    LOG_INFO("true right name:%s, int value: %d", true_right.to_string().c_str(),true_right.value_.int_value_);
+    return common::compare_int((void *)&true_left.value_.int_value_,(void *)&true_right.value_.int_value_);
 }
 
 RC DateType::to_string(const Value &val, string &result) const

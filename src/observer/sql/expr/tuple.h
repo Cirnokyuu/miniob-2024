@@ -104,7 +104,7 @@ public:
     for (int i = 0; i < cell_num - 1; i++) {
       Value cell;
       cell_at(i, cell);
-      LOG_INFO("%s: %s",attr_type_to_string(cell.attr_type()),cell.to_string().c_str());
+//      LOG_INFO("%s: %s",attr_type_to_string(cell.attr_type()),cell.to_string().c_str());
       str += cell.to_string();
       str += ", ";
     }
@@ -211,7 +211,7 @@ public:
       FieldExpr       *field_expr = speces_[index];
       const FieldMeta *field_meta = field_expr->field().meta();
       if(0==strcmp(field_meta->name(),"__my_null_field__")){
-        LOG_WARN("LOL");
+//        LOG_WARN("LOL");
       }
       cell.set_type(field_meta->type());
       cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
