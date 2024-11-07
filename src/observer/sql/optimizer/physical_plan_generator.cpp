@@ -339,6 +339,7 @@ RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, uniq
 
 RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr<PhysicalOperator> &oper)
 {
+  LOG_DEBUG("create join plan");
   RC rc = RC::SUCCESS;
 
   vector<unique_ptr<LogicalOperator>> &child_opers = join_oper.children();
@@ -360,6 +361,7 @@ RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr
   }
 
   oper = std::move(join_physical_oper);
+  LOG_DEBUG("create join plan success");
   return rc;
 }
 

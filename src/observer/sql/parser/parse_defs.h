@@ -86,6 +86,12 @@ struct ConditionSqlNode
   std::unique_ptr<Expression> right_expr;
 };
 
+struct InnerJoinSqlNode
+{
+  std::vector<std::string> relations;
+  std::vector<Expression*> conditions;
+};
+
 /**
  * @brief 描述一个select语句
  * @ingroup SQLParser
@@ -100,7 +106,7 @@ struct ConditionSqlNode
 struct SelectSqlNode
 {
   std::vector<std::unique_ptr<Expression>> expressions;  ///< 查询的表达式
-  std::vector<std::string>                 relations;    ///< 查询的表
+  std::vector<InnerJoinSqlNode>            relations;    ///< 查询的表
   Expression*                              conditions = nullptr;   ///< 查询条件，使用AND串联起来多个条件
   std::vector<std::unique_ptr<Expression>> group_by;     ///< group by clause
   Expression*                              having = nullptr;     ///< group by clause

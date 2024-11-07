@@ -26,6 +26,21 @@ class FilterStmt;
 class Db;
 class Table;
 
+class InnerJoinChain{
+public:
+  InnerJoinChain() = default;
+  ~InnerJoinChain() = default;
+  void add_table(Table* table, FilterStmt* filter_stmt){
+    tables_.emplace_back(table);
+    filter_stmts_.emplace_back(filter_stmt);
+  }
+  std::vector<Table*> tables() const { return tables_; }
+  std::vector<FilterStmt*> filter_stmts() const { return filter_stmts_; }
+private:
+  std::vector<Table*> tables_;
+  std::vector<FilterStmt*> filter_stmts_;
+};
+
 /**
  * @brief 表示select语句
  * @ingroup Statement
@@ -42,7 +57,7 @@ public:
   static RC create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt);
 
 public:
-  const std::vector<Table *> &tables() const { return tables_; }
+  std::vector<InnerJoinChain> &tablesj() { return tables_j; }
   FilterStmt                 *filter_stmt() const { return filter_stmt_; }
 
   std::vector<std::unique_ptr<Expression>> &query_expressions() { return query_expressions_; }
@@ -51,7 +66,7 @@ public:
 
 private:
   std::vector<std::unique_ptr<Expression>> query_expressions_;
-  std::vector<Table *>                     tables_;
+  std::vector<InnerJoinChain>              tables_j;
   FilterStmt                              *filter_stmt_ = nullptr;
   std::vector<std::unique_ptr<Expression>> group_by_;
   Expression* having_;

@@ -19,13 +19,12 @@ LogicalOperator::~LogicalOperator() {}
 void LogicalOperator::add_child(std::unique_ptr<LogicalOperator> oper) { 
     LOG_DEBUG("add_child");
     //output the expressions of oper
-    for (auto &expr : oper->expressions()) {
-    //decide whether expr is null
-        if(expr == nullptr){
-            LOG_DEBUG("expr is null");
-        }
-      LOG_DEBUG("expression: %s", expr->name());
-    }
+    // for (auto &expr : oper->expressions()) {
+    //     if(expr == nullptr){
+    //         LOG_DEBUG("expr is null");
+    //     }
+    //   LOG_DEBUG("expression: %s", expr->name());
+    // }
     children_.emplace_back(std::move(oper)); 
 }
 bool LogicalOperator::can_generate_vectorized_operator(const LogicalOperatorType &type)

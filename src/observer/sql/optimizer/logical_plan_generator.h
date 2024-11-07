@@ -17,6 +17,7 @@ See the Mulan PSL v2 for more details. */
 #include <memory>
 
 #include "common/rc.h"
+#include "storage/table/table.h"
 #include "common/type/attr_type.h"
 
 class Stmt;
@@ -45,6 +46,7 @@ private:
   RC create_plan(DeleteStmt *delete_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_plan(UpdateStmt *update_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
   RC create_plan(ExplainStmt *explain_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC my_get_table(std::unique_ptr<LogicalOperator> &prev_oper, Table *table, FilterStmt *filter_stmt);
 
   RC create_group_by_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
 

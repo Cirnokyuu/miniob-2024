@@ -118,6 +118,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         NULL_T
         IS
         HAVING
+        INNER
+        JOIN
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -130,6 +132,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   AttrInfoSqlNode *                          attr_info;
   Expression *                               expression;
   std::vector<std::unique_ptr<Expression>> * expression_list;
+  InnerJoinSqlNode *                         inner_join;
+  std::vector<InnerJoinSqlNode> *            inner_join_list;
   std::vector<Value> *                       value_list;
   std::vector<RelAttrSqlNode> *              rel_attr_list;
   std::vector<std::string> *                 relation_list;
@@ -150,7 +154,6 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <condition>           condition
 %type <value>               value
 %type <number>              number
-%type <string>              relation
 %type <comp>                comp_op
 %type <rel_attr>            rel_attr
 %type <attr_infos>          attr_def_list
@@ -159,7 +162,6 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <expression>          where
 %type <expression>          having
 %type <string>              storage_format
-%type <relation_list>       rel_list
 %type <expression>          expression
 %type <expression_list>     expression_list
 %type <expression_list>     group_by
@@ -187,6 +189,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <boolean>             null_option
 %type <boolean>             is_null_comp
 %type <expression>          aggr_expr
+%type <inner_join>          join_chain
+%type <inner_join_list>    join_list
 // commands should be a list but I use a single command instead
 %type <sql_node>            commands
 
@@ -475,8 +479,10 @@ update_stmt:      /*  update 语句的语法解析树*/
       free($4);
     }
     ;
+
+
 select_stmt:        /*  select 语句的语法解析树*/
-    SELECT expression_list FROM rel_list where group_by having
+    SELECT expression_list FROM join_list where group_by having
     {
       $$ = new ParsedSqlNode(SCF_SELECT);
       if ($2 != nullptr) {
@@ -604,26 +610,34 @@ rel_attr:
     }
     ;
 
-relation:
-    ID {
-      $$ = $1;
+join_list:
+    join_chain {
+      $$ = new std::vector<InnerJoinSqlNode>;
+      $$->emplace_back(*$1);
+    }
+    | join_list COMMA join_chain {
+      if (nullptr != $1) {
+        $$ = $1;
+      } else {
+        $$ = new std::vector<InnerJoinSqlNode>;
+      }
+      $$->emplace_back(*$3);
     }
     ;
-rel_list:
-    relation {
-      $$ = new std::vector<std::string>();
-      $$->push_back($1);
-      free($1);
-    }
-    | relation COMMA rel_list {
-      if ($3 != nullptr) {
-        $$ = $3;
-      } else {
-        $$ = new std::vector<std::string>;
-      }
 
-      $$->insert($$->begin(), $1);
-      free($1);
+join_chain:
+    ID {
+      $$ = new InnerJoinSqlNode;
+      $$->relations.emplace_back($1);
+    }
+    | join_chain INNER JOIN ID ON condition {
+      if (nullptr != $1) {
+        $$ = $1;
+      } else {
+        $$ = new InnerJoinSqlNode;
+      }
+      $$->relations.emplace_back($4);
+      $$->conditions.emplace_back($6);
     }
     ;
 
