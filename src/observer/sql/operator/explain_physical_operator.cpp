@@ -36,10 +36,10 @@ void ExplainPhysicalOperator::generate_physical_plan()
   ends.push_back(true);
   const auto children_size = static_cast<int>(children_.size());
   for (int i = 0; i < children_size - 1; i++) {
-    to_string(ss, children_[i].get(), level, false /*last_child*/, ends);
+    to_string(ss, children_[i], level, false /*last_child*/, ends);
   }
   if (children_size > 0) {
-    to_string(ss, children_[children_size - 1].get(), level, true /*last_child*/, ends);
+    to_string(ss, children_[children_size - 1], level, true /*last_child*/, ends);
   }
 
   physical_plan_ = ss.str();
@@ -114,12 +114,12 @@ void ExplainPhysicalOperator::to_string(
   }
   ends[level + 1] = false;
 
-  vector<std::unique_ptr<PhysicalOperator>> &children = oper->children();
+  vector<PhysicalOperator*> children = oper->children();
   const auto                                 size     = static_cast<int>(children.size());
   for (auto i = 0; i < size - 1; i++) {
-    to_string(os, children[i].get(), level + 1, false /*last_child*/, ends);
+    to_string(os, children[i], level + 1, false /*last_child*/, ends);
   }
   if (size > 0) {
-    to_string(os, children[size - 1].get(), level + 1, true /*last_child*/, ends);
+    to_string(os, children[size - 1], level + 1, true /*last_child*/, ends);
   }
 }

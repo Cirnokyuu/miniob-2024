@@ -189,7 +189,8 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
     }
     else{
       LOG_WARN("cannot compare different types");
-      return RC::INTERNAL;
+      result = false;
+      return rc;
     }
   }
   int cmp_result = left.compare(right);

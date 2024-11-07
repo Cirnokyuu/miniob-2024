@@ -86,9 +86,9 @@ public:
 
   virtual RC tuple_schema(TupleSchema &schema) const { return RC::UNIMPLEMENTED; }
 
-  void add_child(std::unique_ptr<PhysicalOperator> oper) { children_.emplace_back(std::move(oper)); }
+  void add_child(PhysicalOperator* oper) { children_.emplace_back(std::move(oper)); }
 
-  std::vector<std::unique_ptr<PhysicalOperator>> &children() { return children_; }
+  std::vector<PhysicalOperator*> children() const { return children_; }
   
   void set_parent_tuple(const Tuple* tuple)
   {
@@ -99,6 +99,6 @@ public:
   }
 
 protected:
-  std::vector<std::unique_ptr<PhysicalOperator>> children_;
+  std::vector<PhysicalOperator*> children_;
   const Tuple* parent_tuple_ = nullptr;
 };

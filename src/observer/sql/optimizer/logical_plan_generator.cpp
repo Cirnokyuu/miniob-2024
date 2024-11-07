@@ -109,9 +109,13 @@ RC LogicalPlanGenerator::my_get_table(unique_ptr<LogicalOperator> &prev_oper,Tab
   }
   if(prev_oper == nullptr){
     if(predicate_oper){
-        static_cast<TableGetLogicalOperator*>(table_get_oper.get())->set_predicates(std::move(predicate_oper->expressions()));
+      auto table_get_oper_2 = static_cast<TableGetLogicalOperator*>(table_get_oper.release());
+      table_get_oper_2->set_predicates(std::move(predicate_oper->expressions()));
+      prev_oper = unique_ptr<LogicalOperator>(table_get_oper_2);
     }
-    prev_oper = std::move(table_get_oper);
+    else{
+      prev_oper = std::move(table_get_oper);
+    }
   }
   else{
     unique_ptr<JoinLogicalOperator> join_oper = std::make_unique<JoinLogicalOperator>();
@@ -139,7 +143,6 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
   for (auto &chain : tables) {
     unique_ptr<LogicalOperator> table_get_oper(nullptr);
     for (size_t i = 0; i < chain.tables().size(); i++) {
-      //
       RC rc = my_get_table(table_get_oper,chain.tables()[i],chain.filter_stmts()[i]);
       if(OB_FAIL(rc)){
         LOG_WARN("failed to get table. rc=%s", strrc(rc));

@@ -36,7 +36,7 @@ RC PredicatePhysicalOperator::open(Trx *trx)
 RC PredicatePhysicalOperator::next()
 {
   RC                rc   = RC::SUCCESS;
-  PhysicalOperator *oper = children_.front().get();
+  PhysicalOperator *oper = children_.front();
 
   Tuple * my_tup = nullptr;
   while (RC::SUCCESS == (rc = oper->next())) {

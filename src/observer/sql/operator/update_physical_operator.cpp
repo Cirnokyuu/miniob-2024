@@ -29,7 +29,7 @@ RC UpdatePhysicalOperator::open(Trx *trx)
     return RC::SUCCESS;
   }
 
-  std::unique_ptr<PhysicalOperator> &child = children_[0];
+  PhysicalOperator* &child = children_[0];
 
   RC rc = child->open(trx);
   if (rc != RC::SUCCESS) {

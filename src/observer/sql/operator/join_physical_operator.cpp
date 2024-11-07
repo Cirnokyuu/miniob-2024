@@ -24,8 +24,8 @@ RC NestedLoopJoinPhysicalOperator::open(Trx *trx)
   }
 
   RC rc         = RC::SUCCESS;
-  left_         = children_[0].get();
-  right_        = children_[1].get();
+  left_         = children_[0];
+  right_        = children_[1];
   right_closed_ = true;
   round_done_   = true;
 

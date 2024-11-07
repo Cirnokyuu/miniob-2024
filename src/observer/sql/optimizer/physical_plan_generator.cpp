@@ -220,7 +220,7 @@ RC PhysicalPlanGenerator::create_plan(PredicateLogicalOperator &pred_oper, uniqu
 
   unique_ptr<Expression> expression = std::move(expressions.front());
   oper = unique_ptr<PhysicalOperator>(new PredicatePhysicalOperator(std::move(expression)));
-  oper->add_child(std::move(child_phy_oper));
+  oper->add_child(child_phy_oper.release());
   return rc;
 }
 
@@ -243,7 +243,7 @@ RC PhysicalPlanGenerator::create_plan(ProjectLogicalOperator &project_oper, uniq
 
   auto project_operator = make_unique<ProjectPhysicalOperator>(std::move(project_oper.expressions()));
   if (child_phy_oper) {
-    project_operator->add_child(std::move(child_phy_oper));
+    project_operator->add_child(child_phy_oper.release());
   }
 
   oper = std::move(project_operator);
@@ -285,7 +285,7 @@ RC PhysicalPlanGenerator::create_plan(UpdateLogicalOperator &update_oper, unique
   oper = unique_ptr<PhysicalOperator>(new UpdatePhysicalOperator(table,field_meta,value));
 
   if (child_physical_oper) {
-    oper->add_child(std::move(child_physical_oper));
+    oper->add_child(child_physical_oper.release());
   }
   return rc;
 }
@@ -310,7 +310,7 @@ RC PhysicalPlanGenerator::create_plan(DeleteLogicalOperator &delete_oper, unique
   oper = unique_ptr<PhysicalOperator>(new DeletePhysicalOperator(delete_oper.table()));
 
   if (child_physical_oper) {
-    oper->add_child(std::move(child_physical_oper));
+    oper->add_child(child_physical_oper.release());
   }
   return rc;
 }
@@ -330,7 +330,7 @@ RC PhysicalPlanGenerator::create_plan(ExplainLogicalOperator &explain_oper, uniq
       return rc;
     }
 
-    explain_physical_oper->add_child(std::move(child_physical_oper));
+    explain_physical_oper->add_child(child_physical_oper.release());
   }
 
   oper = std::move(explain_physical_oper);
@@ -357,7 +357,7 @@ RC PhysicalPlanGenerator::create_plan(JoinLogicalOperator &join_oper, unique_ptr
       return rc;
     }
 
-    join_physical_oper->add_child(std::move(child_physical_oper));
+    join_physical_oper->add_child(child_physical_oper.release());
   }
 
   oper = std::move(join_physical_oper);
@@ -405,7 +405,7 @@ RC PhysicalPlanGenerator::create_plan(GroupByLogicalOperator &logical_oper, std:
     return rc;
   }
 
-  group_by_oper->add_child(std::move(child_physical_oper));
+  group_by_oper->add_child(child_physical_oper.release());
 
   oper = std::move(group_by_oper);
   return rc;
@@ -445,7 +445,7 @@ RC PhysicalPlanGenerator::create_vec_plan(GroupByLogicalOperator &logical_oper, 
     return rc;
   }
 
-  physical_oper->add_child(std::move(child_physical_oper));
+  physical_oper->add_child(child_physical_oper.release());
 
   oper = std::move(physical_oper);
   return rc;
@@ -477,8 +477,8 @@ RC PhysicalPlanGenerator::create_vec_plan(ProjectLogicalOperator &project_oper, 
       expressions.push_back(expr.get());
     }
     auto expr_operator = make_unique<ExprVecPhysicalOperator>(std::move(expressions));
-    expr_operator->add_child(std::move(child_phy_oper));
-    project_operator->add_child(std::move(expr_operator));
+    expr_operator->add_child(child_phy_oper.release());
+    project_operator->add_child(expr_operator.release());
   }
 
   oper = std::move(project_operator);
@@ -503,7 +503,7 @@ RC PhysicalPlanGenerator::create_vec_plan(ExplainLogicalOperator &explain_oper, 
       return rc;
     }
 
-    explain_physical_oper->add_child(std::move(child_physical_oper));
+    explain_physical_oper->add_child(child_physical_oper.release());
   }
 
   oper = std::move(explain_physical_oper);

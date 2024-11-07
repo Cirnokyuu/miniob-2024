@@ -30,7 +30,7 @@ RC ProjectPhysicalOperator::open(Trx *trx)
     return RC::SUCCESS;
   }
 
-  PhysicalOperator *child = children_[0].get();
+  PhysicalOperator *child = children_[0];
   RC                rc    = child->open(trx);
   if (rc != RC::SUCCESS) {
     LOG_WARN("failed to open child operator: %s", strrc(rc));
