@@ -192,6 +192,7 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
   }
 
   LOG_DEBUG("project begin");
+  
   auto project_oper = make_unique<ProjectLogicalOperator>(std::move(select_stmt->query_expressions()));
   if (*last_oper) {
     project_oper->add_child(std::move(*last_oper));

@@ -25,6 +25,9 @@ PredicatePhysicalOperator::PredicatePhysicalOperator(std::unique_ptr<Expression>
 
 RC PredicatePhysicalOperator::open(Trx *trx)
 {
+  if (children_.empty()) {
+    return RC::SUCCESS;
+  }
   if (children_.size() != 1) {
     LOG_WARN("predicate operator must has one child");
     return RC::INTERNAL;
@@ -36,6 +39,9 @@ RC PredicatePhysicalOperator::open(Trx *trx)
 RC PredicatePhysicalOperator::next()
 {
   RC                rc   = RC::SUCCESS;
+  if(children_.empty()){
+    return RC::RECORD_EOF;
+  }
   PhysicalOperator *oper = children_.front();
 
   Tuple * my_tup = nullptr;
@@ -71,6 +77,9 @@ RC PredicatePhysicalOperator::next()
 
 RC PredicatePhysicalOperator::close()
 {
+  if (children_.empty()) {
+    return RC::SUCCESS;
+  }
   children_[0]->close();
   return RC::SUCCESS;
 }
