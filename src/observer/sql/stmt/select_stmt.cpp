@@ -71,6 +71,10 @@ unordered_map<string, Table *> &table_map,std::string relation, InnerJoinChain& 
   ExpressionBinder expression_binder(binder_context);
   bound_conditions(expression_binder,condition,bound_condition);
 
+  if(bound_condition.empty()){
+    return RC::INVALID_ARGUMENT;
+  }
+
   FilterStmt* filter_stmt = nullptr;
   if(condition!=nullptr){
     rc = FilterStmt::create(db, table, &table_map, std::move(bound_condition[0]), filter_stmt);
