@@ -192,6 +192,10 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
     default_table = tables[0];
   }
 
+  if(bound_condition.empty()){
+    return RC::INVALID_ARGUMENT;
+  }
+
   // create filter statement in `where` statement
   FilterStmt *filter_stmt = nullptr;
   RC          rrc          = FilterStmt::create(db,
