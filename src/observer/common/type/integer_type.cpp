@@ -18,15 +18,13 @@ int IntegerType::compare(const Value &left, const Value &right) const
 {
   LOG_INFO("%s",attr_type_to_string(left.attr_type()));
   ASSERT(left.attr_type() == AttrType::INTS, "left type is not integer");
-  ASSERT(right.attr_type() == AttrType::INTS || right.attr_type() == AttrType::FLOATS, "right type is not numeric");
-  if (right.attr_type() == AttrType::INTS) {
-    return common::compare_int((void *)&left.value_.int_value_, (void *)&right.value_.int_value_);
-  } else if (right.attr_type() == AttrType::FLOATS) {
+  // ASSERT(right.attr_type() == AttrType::INTS || right.attr_type() == AttrType::FLOATS, "right type is not numeric");
+  if (right.attr_type() == AttrType::FLOATS) {
     float left_val  = left.get_float();
     float right_val = right.get_float();
     return common::compare_float((void *)&left_val, (void *)&right_val);
   }
-  return INT32_MAX;
+  return common::compare_int((void *)&left.value_.int_value_, (void *)&right.value_.int_value_);
 }
 
 RC IntegerType::add(const Value &left, const Value &right, Value &result) const

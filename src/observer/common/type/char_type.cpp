@@ -16,7 +16,17 @@ See the Mulan PSL v2 for more details. */
 
 int CharType::compare(const Value &left, const Value &right) const
 {
-  ASSERT(left.attr_type() == AttrType::CHARS && right.attr_type() == AttrType::CHARS, "invalid type");
+  ASSERT(left.attr_type() == AttrType::CHARS, "left type is not char");
+  if(right.attr_type() == AttrType::INTS){
+    int left_value = left.get_int();
+    int right_value = right.get_int();
+    return common::compare_int((void *)&left_value, (void *)&right_value);
+  }
+  if(right.attr_type() == AttrType::FLOATS){
+    float left_val  = left.get_float();
+    float right_val = right.get_float();
+    return common::compare_float((void *)&left_val, (void *)&right_val);
+  }
   return common::compare_string(
       (void *)left.value_.pointer_value_, left.length_, (void *)right.value_.pointer_value_, right.length_);
 }
@@ -55,6 +65,15 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
       LOG_INFO("Final %s",attr_type_to_string(result.attr_type()));
       ASSERT(result.attr_type() == AttrType::DATES, "result is not DATES");
     }break;
+    case AttrType::INTS:
+    {
+      LOG_INFO("To ints.");
+      result.attr_type_ = AttrType::DATES;
+      int d=0;
+      if(sscanf(val.value_.pointer_value_, "%d",&d)!=1)d=0;
+      result.set_int(d);
+      LOG_INFO("Final %s",attr_type_to_string(result.attr_type()));
+    }break;
     default: return RC::UNIMPLEMENTED;
   }
   return RC::SUCCESS;
@@ -66,6 +85,9 @@ int CharType::cast_cost(AttrType type)
     return 0;
   }
   if (type == AttrType::DATES) {
+    return 1;
+  }
+  if (type == AttrType::INTS) {
     return 1;
   }
   return INT32_MAX;
