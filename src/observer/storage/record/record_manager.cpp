@@ -826,7 +826,7 @@ RC RecordFileScanner::close_scan()
   }
   if (record_page_handler_ != nullptr) {
     record_page_handler_->cleanup();
-    delete record_page_handler_;
+//    delete record_page_handler_;
     record_page_handler_ = nullptr;
   }
 

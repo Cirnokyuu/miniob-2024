@@ -161,6 +161,9 @@ RC PlainCommunicator::write_result(SessionEvent *event, bool &need_disconnect)
 {
   LOG_DEBUG("write_result");
   RC rc = write_result_internal(event, need_disconnect);
+  if(OB_FAIL(rc)) {
+    return rc;
+  }
   if (!need_disconnect) {
     RC rc1 = write_debug(event, need_disconnect);
     if (OB_FAIL(rc1)) {

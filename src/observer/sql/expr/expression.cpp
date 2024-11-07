@@ -174,7 +174,24 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
     return rc;
   }
   
+  if(left.attr_type() != right.attr_type()){
+    if(left.attr_type() == AttrType::FLOATS && right.attr_type() == AttrType::INTS){
 
+    }
+    else if(left.attr_type() == AttrType::INTS && right.attr_type() == AttrType::FLOATS){
+
+    }
+    else if(left.attr_type() == AttrType::CHARS && right.attr_type() == AttrType::DATES){
+
+    }
+    else if(left.attr_type() == AttrType::DATES && right.attr_type() == AttrType::CHARS){
+
+    }
+    else{
+      LOG_WARN("cannot compare different types");
+      return RC::INTERNAL;
+    }
+  }
   int cmp_result = left.compare(right);
   result         = false;
   switch (comp_) {

@@ -47,7 +47,7 @@ RC SqlTaskHandler::handle_event(Communicator *communicator)
   event->session()->set_current_request(nullptr);
   Session::set_current_session(nullptr);
 
-  delete event;
+//  delete event;
 
   if (need_disconnect) {
     return RC::INTERNAL;

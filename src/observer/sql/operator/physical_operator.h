@@ -67,7 +67,7 @@ class PhysicalOperator
 public:
   PhysicalOperator() = default;
 
-  virtual ~PhysicalOperator() = default;
+  virtual ~PhysicalOperator();
 
   /**
    * 这两个函数是为了打印时使用的，比如在explain中
@@ -89,7 +89,16 @@ public:
   void add_child(std::unique_ptr<PhysicalOperator> oper) { children_.emplace_back(std::move(oper)); }
 
   std::vector<std::unique_ptr<PhysicalOperator>> &children() { return children_; }
+  
+  void set_parent_tuple(const Tuple* tuple)
+  {
+    parent_tuple_ = tuple;
+    for (auto& child : children_) {
+      child->set_parent_tuple(tuple);
+    }
+  }
 
 protected:
   std::vector<std::unique_ptr<PhysicalOperator>> children_;
+  const Tuple* parent_tuple_ = nullptr;
 };

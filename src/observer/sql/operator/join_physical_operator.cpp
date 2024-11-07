@@ -84,6 +84,8 @@ RC NestedLoopJoinPhysicalOperator::close()
 
 Tuple *NestedLoopJoinPhysicalOperator::current_tuple() { return &joined_tuple_; }
 
+NestedLoopJoinPhysicalOperator::~NestedLoopJoinPhysicalOperator(){};
+
 RC NestedLoopJoinPhysicalOperator::left_next()
 {
   RC rc = RC::SUCCESS;

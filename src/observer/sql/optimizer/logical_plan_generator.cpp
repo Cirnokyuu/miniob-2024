@@ -109,8 +109,7 @@ RC LogicalPlanGenerator::my_get_table(unique_ptr<LogicalOperator> &prev_oper,Tab
   }
   if(prev_oper == nullptr){
     if(predicate_oper){
-        TableGetLogicalOperator* table_oper2 = static_cast<TableGetLogicalOperator*>(table_get_oper.get());
-        table_oper2->set_predicates(std::move(predicate_oper->expressions()));
+        static_cast<TableGetLogicalOperator*>(table_get_oper.get())->set_predicates(std::move(predicate_oper->expressions()));
     }
     prev_oper = std::move(table_get_oper);
   }

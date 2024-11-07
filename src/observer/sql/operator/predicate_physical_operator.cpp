@@ -2,7 +2,7 @@
 miniob is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
-         http://license.coscl.org.cn/MulanPSL2
+         htmy_tup://license.coscl.org.cn/MulanPSL2
 THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
 EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
 MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
@@ -38,6 +38,7 @@ RC PredicatePhysicalOperator::next()
   RC                rc   = RC::SUCCESS;
   PhysicalOperator *oper = children_.front().get();
 
+  Tuple * my_tup = nullptr;
   while (RC::SUCCESS == (rc = oper->next())) {
     Tuple *tuple = oper->current_tuple();
     if (nullptr == tuple) {
@@ -45,10 +46,18 @@ RC PredicatePhysicalOperator::next()
       LOG_WARN("failed to get tuple from operator");
       break;
     }
+    if (parent_tuple_) {
+      JoinedTuple join_tup;
+      join_tup.set_left(tuple);
+      join_tup.set_right(const_cast<Tuple*>(parent_tuple_));
+      my_tup = &join_tup;
+    } else {
+      my_tup = tuple;
+    }
 
     Value value;
     LOG_INFO("tuple %s", tuple->to_string().c_str());
-    rc = expression_->get_value(*tuple, value);
+    rc = expression_->get_value(*my_tup, value);
     if (rc != RC::SUCCESS) {
       return rc;
     }

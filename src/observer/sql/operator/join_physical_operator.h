@@ -26,7 +26,7 @@ class NestedLoopJoinPhysicalOperator : public PhysicalOperator
 {
 public:
   NestedLoopJoinPhysicalOperator();
-  virtual ~NestedLoopJoinPhysicalOperator() = default;
+  virtual ~NestedLoopJoinPhysicalOperator();
 
   PhysicalOperatorType type() const override { return PhysicalOperatorType::NESTED_LOOP_JOIN; }
 

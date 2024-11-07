@@ -26,7 +26,7 @@ class TableGetLogicalOperator : public LogicalOperator
 {
 public:
   TableGetLogicalOperator(Table *table, ReadWriteMode mode);
-  virtual ~TableGetLogicalOperator() = default;
+  virtual ~TableGetLogicalOperator();
 
   LogicalOperatorType type() const override { return LogicalOperatorType::TABLE_GET; }
 
