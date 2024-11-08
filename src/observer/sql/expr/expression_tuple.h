@@ -27,16 +27,16 @@ public:
   ExpressionTuple(const std::vector<ExprPointerType> &expressions) : expressions_(expressions) {}
   virtual ~ExpressionTuple() = default;
 
-  void set_tuple(const Tuple *tuple) { child_tuple_ = tuple; }
+  void set_tuple(const Tuple *tuple) {
+    //output tuple
+    LOG_DEBUG("set tuple: %s", tuple->to_string().c_str());
+    child_tuple_ = tuple;
+  }
 
   int cell_num() const override { return static_cast<int>(expressions_.size()); }
 
   RC cell_at(int index, Value &cell) const override
   {
-    // const char* bomb = nullptr;
-    // vector<int> v;
-    // LOG_DEBUG("bomb %c", bomb[2]);
-    // LOG_DEBUG("vector %d", v[2]);
     LOG_DEBUG("expr tup cell at %d", index);
     if (index < 0 || index >= cell_num()) {
       return RC::INVALID_ARGUMENT;

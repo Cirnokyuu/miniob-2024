@@ -62,6 +62,7 @@ public:
 
   std::vector<std::unique_ptr<Expression>> &query_expressions() { return query_expressions_; }
   std::vector<std::unique_ptr<Expression>> &group_by() { return group_by_; }
+  std::vector<std::pair<bool,std::unique_ptr<Expression>>> &order_by() { return order_by_; }
   Expression* having() { return having_; }
 
 private:
@@ -69,5 +70,6 @@ private:
   std::vector<InnerJoinChain>              tables_j;
   FilterStmt                              *filter_stmt_ = nullptr;
   std::vector<std::unique_ptr<Expression>> group_by_;
-  Expression* having_;
+  std::vector<std::pair<bool,std::unique_ptr<Expression>>> order_by_;
+  Expression*                              having_;
 };

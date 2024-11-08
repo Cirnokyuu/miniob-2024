@@ -120,6 +120,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         HAVING
         INNER
         JOIN
+        ORDER
+        ASC
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -141,6 +143,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   int                                        number;
   float                                      floats;
   bool                                       boolean;
+  std::pair<bool,Expression*> *              order_key;
+  std::vector<pair<bool,Expression*>> *      order_key_list;
 }
 
 %token <number> NUMBER
@@ -190,7 +194,10 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <boolean>             is_null_comp
 %type <expression>          aggr_expr
 %type <inner_join>          join_chain
-%type <inner_join_list>    join_list
+%type <inner_join_list>     join_list
+%type <order_key>           order_node
+%type <order_key_list>      order_by_list
+%type <order_key_list>      order_by
 // commands should be a list but I use a single command instead
 %type <sql_node>            commands
 
@@ -482,7 +489,7 @@ update_stmt:      /*  update 语句的语法解析树*/
 
 
 select_stmt:        /*  select 语句的语法解析树*/
-    SELECT expression_list FROM join_list where group_by having
+    SELECT expression_list FROM join_list where group_by having order_by
     {
       $$ = new ParsedSqlNode(SCF_SELECT);
       if ($2 != nullptr) {
@@ -506,6 +513,10 @@ select_stmt:        /*  select 语句的语法解析树*/
 
       if ($7 != nullptr) {
         $$->selection.having = $7;
+      }
+
+      if ($8 != nullptr) {
+        $$->selection.order_by.swap(*$8);
       }
     }
     ;
@@ -709,6 +720,42 @@ having:
     }
     | HAVING condition {
       $$ = $2;
+    }
+    ;
+order_node:
+  expression
+  {
+    $$ = new std::pair<bool,Expression*>(true, $1);
+  }
+  | expression ASC
+  {
+    $$ = new std::pair<bool,Expression*>(true, $1);
+  }
+  | expression DESC
+  {
+    $$ = new std::pair<bool,Expression*>(false, $1);
+  }
+  ;
+order_by_list:
+	order_node
+	{
+    $$ = new std::vector<pair<bool,Expression*>>;
+    $$->emplace_back(*$1);
+	}
+  |
+	order_by_list COMMA order_node
+	{
+    $$ = $1;
+    $$->emplace_back(*$3);
+	}
+	;
+order_by:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | ORDER BY order_by_list {
+      $$ = $3;  
     }
     ;
 

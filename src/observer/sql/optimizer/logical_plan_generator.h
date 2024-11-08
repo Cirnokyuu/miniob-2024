@@ -49,6 +49,7 @@ private:
   RC my_get_table(std::unique_ptr<LogicalOperator> &prev_oper, Table *table, FilterStmt *filter_stmt);
 
   RC create_group_by_plan(SelectStmt *select_stmt, std::unique_ptr<LogicalOperator> &logical_operator);
+  RC create_order_by_plan(SelectStmt *select_stmt, std::vector<Expression*> my_query_expressions, std::unique_ptr<LogicalOperator> &logical_operator);
 
   int implicit_cast_cost(AttrType from, AttrType to);
 };

@@ -61,6 +61,8 @@ RC ProjectPhysicalOperator::close()
 Tuple *ProjectPhysicalOperator::current_tuple()
 {
   tuple_.set_tuple(children_[0]->current_tuple());
+  //output tuple_
+  // LOG_DEBUG("current tuple: %s", tuple_.to_string().c_str());
   return &tuple_;
 }
 

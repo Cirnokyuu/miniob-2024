@@ -175,6 +175,17 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
       return rc;
     }
   }
+  std::vector<std::pair<bool,std::unique_ptr<Expression>>> order_by_expressions;
+  for (auto &expression : select_sql.order_by) {
+    std::unique_ptr<Expression> expr_ptr(expression.second);
+    vector<unique_ptr<Expression>> one_expr;
+    RC rc = expression_binder.bind_expression(expr_ptr, one_expr);
+    if (OB_FAIL(rc)) {
+      LOG_INFO("bind expression failed. rc=%s", strrc(rc));
+      return rc;
+    }
+    order_by_expressions.push_back({expression.first, std::move(one_expr[0])});
+  }
 
   vector<unique_ptr<Expression>> having_condition;
   std::unique_ptr<Expression> having_expr(select_sql.having);
@@ -219,6 +230,7 @@ RC SelectStmt::create(Db *db, SelectSqlNode &select_sql, Stmt *&stmt)
   select_stmt->query_expressions_.swap(bound_expressions);
   select_stmt->filter_stmt_ = filter_stmt;
   select_stmt->group_by_.swap(group_by_expressions);
+  select_stmt->order_by_.swap(order_by_expressions);
 //  select_stmt->having_ = having_condition[0].release();
   stmt                      = select_stmt;
   return RC::SUCCESS;

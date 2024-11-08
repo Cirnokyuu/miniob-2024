@@ -340,7 +340,9 @@ public:
   void set_names(const std::vector<TupleCellSpec> &specs) { specs_ = specs; }
   void set_cells(const std::vector<Value> &cells) { cells_ = cells; }
 
-  virtual int cell_num() const override { return static_cast<int>(cells_.size()); }
+  virtual int cell_num() const override {
+    return static_cast<int>(cells_.size());
+  }
 
   virtual RC cell_at(int index, Value &cell) const override
   {

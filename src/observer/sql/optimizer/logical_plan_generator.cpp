@@ -27,6 +27,7 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/project_logical_operator.h"
 #include "sql/operator/table_get_logical_operator.h"
 #include "sql/operator/group_by_logical_operator.h"
+#include "sql/operator/order_by_logical_operator.h"
 
 #include "sql/stmt/calc_stmt.h"
 #include "sql/stmt/delete_stmt.h"
@@ -175,7 +176,7 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
     last_oper = &predicate_oper;
   }
 
-  LOG_DEBUG("query expressions size: %d", select_stmt->query_expressions().size());
+
   unique_ptr<LogicalOperator> group_by_oper;
   rc = create_group_by_plan(select_stmt, group_by_oper);
   if (OB_FAIL(rc)) {
@@ -191,8 +192,26 @@ RC LogicalPlanGenerator::create_plan(SelectStmt *select_stmt, unique_ptr<Logical
     last_oper = &group_by_oper;
   }
 
+
+  std::vector<Expression*> my_query_expressions;
+  for(auto &expr:select_stmt->query_expressions()){
+    my_query_expressions.push_back(expr.get());
+  }
+  unique_ptr<LogicalOperator> order_by_oper;
+  rc = create_order_by_plan(select_stmt, my_query_expressions, order_by_oper);
+  if (OB_FAIL(rc)) {
+    LOG_WARN("failed to create group by logical plan. rc=%s", strrc(rc));
+    return rc;
+  }
+
+  if (order_by_oper) {
+    if (*last_oper) {
+      order_by_oper->add_child(std::move(*last_oper));
+    }
+
+    last_oper = &order_by_oper;
+  }
   LOG_DEBUG("project begin");
-  
   auto project_oper = make_unique<ProjectLogicalOperator>(std::move(select_stmt->query_expressions()));
   if (*last_oper) {
     project_oper->add_child(std::move(*last_oper));
@@ -307,6 +326,16 @@ RC LogicalPlanGenerator::create_plan(ExplainStmt *explain_stmt, unique_ptr<Logic
   logical_operator = unique_ptr<LogicalOperator>(new ExplainLogicalOperator);
   logical_operator->add_child(std::move(child_oper));
   return rc;
+}
+
+RC LogicalPlanGenerator::create_order_by_plan(SelectStmt *select_stmt, std::vector<Expression*> my_query_expressions, unique_ptr<LogicalOperator> &logical_operator){
+  vector<pair<bool,unique_ptr<Expression>>> &order_by__ = select_stmt->order_by();
+  // get the query expressions
+  unique_ptr<LogicalOperator> orderby_oper(
+    new OrderByLogicalOperator( std::move(order_by__), my_query_expressions )
+  );
+  logical_operator = std::move(orderby_oper);
+  return RC::SUCCESS;
 }
 
 RC LogicalPlanGenerator::create_group_by_plan(SelectStmt *select_stmt, unique_ptr<LogicalOperator> &logical_operator)

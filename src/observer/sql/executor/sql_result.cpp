@@ -73,8 +73,8 @@ RC SqlResult::next_tuple(Tuple *&tuple)
   if (rc != RC::SUCCESS) {
     return rc;
   }
-
   tuple = operator_->current_tuple();
+  //output the values in tuple
   return rc;
 }
 
