@@ -5,6 +5,46 @@
 #include <algorithm>
 
 
+void OrderByPhysicalOperator::set_names(std::vector<TupleCellSpec>& names, Expression* expr){
+  if(expr == nullptr){
+    return;
+  }
+	if(expr->type()==ExprType::FIELD){
+	  FieldExpr* field_expr = static_cast<FieldExpr*>(expr);
+	  TupleCellSpec spec = TupleCellSpec(field_expr->table_name(),field_expr->field_name());
+	  names.push_back(spec);
+    name_exprs.push_back(field_expr);
+	}
+	else if(expr->type()==ExprType::AGGREGATION){
+    AggregateExpr* agg_expr = static_cast<AggregateExpr*>(expr);
+	  TupleCellSpec spec = TupleCellSpec(expr->name());
+	  names.push_back(spec);
+    name_exprs.push_back(agg_expr);
+	}
+	else if(expr->type() == ExprType::VALUE){
+	}
+	else if(expr->type() == ExprType::CAST){
+		CastExpr* cast_expr = static_cast<CastExpr*>(expr);
+		set_names(names, cast_expr->child().get());
+	}
+	else if(expr->type() == ExprType::COMPARISON){
+    ComparisonExpr* comparison_expr = static_cast<ComparisonExpr*>(expr);
+    set_names(names, comparison_expr->left().get());
+    set_names(names, comparison_expr->right().get());
+	}
+	else if(expr->type() == ExprType::CONJUNCTION){
+    ConjunctionExpr* conjunction_expr = static_cast<ConjunctionExpr*>(expr);
+    for(auto &child: conjunction_expr->children()){
+      set_names(names, child.get());
+    }
+  }
+  else if(expr->type() == ExprType::ARITHMETIC){
+    ArithmeticExpr* arithmetic_expr = static_cast<ArithmeticExpr*>(expr);
+    set_names(names, arithmetic_expr->left().get());
+    set_names(names, arithmetic_expr->right().get());
+  }
+}
+
 OrderByPhysicalOperator::OrderByPhysicalOperator(
   std::vector<pair<bool,std::unique_ptr<Expression>>> &&order_by_exprs,
   std::vector<Expression*>& query_exprressions)
@@ -13,15 +53,7 @@ OrderByPhysicalOperator::OrderByPhysicalOperator(
   query_exprressions_ = query_exprressions;
   std::vector<TupleCellSpec> names;
   for(auto &expr: query_exprressions_){
-	if(expr->type()==ExprType::FIELD){
-		FieldExpr* field_expr = static_cast<FieldExpr*>(expr);
-		TupleCellSpec spec = TupleCellSpec(field_expr->table_name(),field_expr->field_name());
-		names.push_back(spec);
-	}
-	else{
-		TupleCellSpec spec = TupleCellSpec(expr->name());
-		names.push_back(spec);
-	}
+	  set_names(names,expr);
   }
   cur_tuple.set_names(names);
 }
@@ -53,7 +85,7 @@ RC OrderByPhysicalOperator::get_key_values(){
 			k_values.push_back(value);
 		}
 		key_values.push_back(k_values);
-		for(auto &expr: query_exprressions_){
+		for(auto &expr: name_exprs){
 			Value value;
 			RC rc = expr->get_value(*children_[0]->current_tuple(), value);
 			ASSERT(value.attr_type() != AttrType::UNDEFINED, "value type is undefined");

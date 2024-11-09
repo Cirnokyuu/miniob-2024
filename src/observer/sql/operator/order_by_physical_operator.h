@@ -36,7 +36,7 @@ public:
   PhysicalOperatorType type() const override{
     return PhysicalOperatorType::ORDER_BY;
   }
-
+  void set_names(std::vector<TupleCellSpec>& names, Expression* expr);
   RC open(Trx *trx) override;
   RC next() override;
   RC close() override;
@@ -46,6 +46,7 @@ public:
 protected:
   std::vector<pair<bool,std::unique_ptr<Expression>>> order_by_expressions_;
   std::vector<Expression*> query_exprressions_;
+  std::vector<Expression*> name_exprs;
   std::vector<std::pair<std::vector<Value>,int>> answer;
   std::vector<std::vector<Value>> key_values;
   int now_index = 0;
