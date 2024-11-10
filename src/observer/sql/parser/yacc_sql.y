@@ -122,6 +122,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         JOIN
         ORDER
         ASC
+        UNIQUE
 
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
@@ -198,8 +199,10 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <order_key>           order_node
 %type <order_key_list>      order_by_list
 %type <order_key_list>      order_by
+%type <boolean>             is_unique
 // commands should be a list but I use a single command instead
 %type <sql_node>            commands
+%type <relation_list>       index_list
 
 %left AND
 %left '+' '-'
@@ -294,16 +297,44 @@ desc_table_stmt:
     ;
 
 create_index_stmt:    /*create index 语句的语法解析树*/
-    CREATE INDEX ID ON ID LBRACE ID RBRACE
+    CREATE is_unique INDEX ID ON ID LBRACE index_list RBRACE
     {
       $$ = new ParsedSqlNode(SCF_CREATE_INDEX);
       CreateIndexSqlNode &create_index = $$->create_index;
-      create_index.index_name = $3;
-      create_index.relation_name = $5;
-      create_index.attribute_name = $7;
+      create_index.isunique = $2;
+      create_index.index_name = $4;
+      create_index.relation_name = $6;
+      create_index.attribute_names.swap(*$8);
+      free($4);
+      free($6);
+    }
+    ;
+is_unique:
+    /* empty */
+    {
+      $$ = false;
+    }
+    | UNIQUE
+    {
+      $$ = true;
+    }
+    ;
+index_list:
+    ID {
+      $$ = new std::vector<std::string>;
+      $$->emplace_back($1);
+      free($1);
+    }
+    | index_list COMMA ID
+    {
+      if ($1 != nullptr) {
+        $$ = $1;
+        $$->emplace_back($3);
+      } else {
+        $$ = new std::vector<std::string>;
+        $$->emplace_back($3);
+      }
       free($3);
-      free($5);
-      free($7);
     }
     ;
 

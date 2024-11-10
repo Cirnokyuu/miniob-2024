@@ -17,6 +17,11 @@ See the Mulan PSL v2 for more details. */
 int CharType::compare(const Value &left, const Value &right) const
 {
   ASSERT(left.attr_type() == AttrType::CHARS, "left type is not char");
+  if(right.attr_type() == AttrType::DATES){
+    Value tmp;
+    DataType::type_instance(AttrType::CHARS)->cast_to(left,AttrType::DATES,tmp);
+    return common::compare_int((void *)&tmp.value_.int_value_,(void *)&right.value_.int_value_);
+  }
   if(right.attr_type() == AttrType::INTS){
     int left_value = left.get_int();
     int right_value = right.get_int();
