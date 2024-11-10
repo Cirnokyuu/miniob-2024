@@ -161,6 +161,14 @@ RC PhysicalPlanGenerator::create_plan(TableGetLogicalOperator &table_get_oper, u
         ASSERT(right_expr->type() == ExprType::VALUE, "right expr should be a value expr while left is field expr");
         field_expr = static_cast<FieldExpr *>(left_expr.get());
         value_expr = static_cast<ValueExpr *>(right_expr.get());
+        Value val = value_expr->get_value();
+        if(field_expr->field().attr_type()==AttrType::DATES && val.attr_type() == AttrType::CHARS){
+          Value tmp;
+          RC rc = DataType::type_instance(AttrType::CHARS)->cast_to(val,AttrType::DATES,tmp);
+          if(OB_FAIL(rc)){
+            return rc;
+          }
+        }
       } else if (right_expr->type() == ExprType::FIELD) {
         ASSERT(left_expr->type() == ExprType::VALUE, "left expr should be a value expr while right is a field expr");
         field_expr = static_cast<FieldExpr *>(right_expr.get());
