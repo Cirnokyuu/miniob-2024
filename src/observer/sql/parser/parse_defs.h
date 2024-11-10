@@ -149,10 +149,16 @@ struct DeleteSqlNode
  */
 struct UpdateSqlNode
 {
+<<<<<<< HEAD
   std::string                   relation_name;   ///< Relation to update
   std::string                   attribute_name;  ///< 更新的字段，仅支持一个字段
   Value                         value;           ///< 更新的值，仅支持一个字段
   Expression*                   conditions = nullptr;
+=======
+  std::string                     relation_name;   ///< Relation to update
+  std::vector<std::pair<std::string,Value>> attribute_names;  ///< 更新的字段
+  Expression*                     conditions = nullptr;
+>>>>>>> 281372a (haha date)
 };
 
 /**

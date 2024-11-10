@@ -15,5 +15,9 @@ See the Mulan PSL v2 for more details. */
 #include "sql/operator/update_logical_operator.h"
 
 UpdateLogicalOperator::UpdateLogicalOperator(
+<<<<<<< HEAD
     Table *table, const FieldMeta *field_meta, Value value) : table_(table), field_meta_(field_meta), value_(value)
+=======
+    Table *table, vector<const FieldMeta*> field_meta, vector<Value> value) : table_(table), field_metas_(field_meta), values_(value)
+>>>>>>> 281372a (haha date)
 {}

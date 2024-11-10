@@ -140,6 +140,10 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   std::vector<Value> *                       value_list;
   std::vector<RelAttrSqlNode> *              rel_attr_list;
   std::vector<std::string> *                 relation_list;
+<<<<<<< HEAD
+=======
+  std::vector<pair<std::string,Value>> *     update_c_list;
+>>>>>>> 281372a (haha date)
   char *                                     string;
   int                                        number;
   float                                      floats;
@@ -203,6 +207,10 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 // commands should be a list but I use a single command instead
 %type <sql_node>            commands
 %type <relation_list>       index_list
+<<<<<<< HEAD
+=======
+%type <update_c_list>       update_list
+>>>>>>> 281372a (haha date)
 
 %left AND
 %left '+' '-'
@@ -504,6 +512,7 @@ delete_stmt:    /*  delete 语句的语法解析树*/
     }
     ;
 update_stmt:      /*  update 语句的语法解析树*/
+<<<<<<< HEAD
     UPDATE ID SET ID EQ value where 
     {
       $$ = new ParsedSqlNode(SCF_UPDATE);
@@ -518,6 +527,36 @@ update_stmt:      /*  update 语句的语法解析树*/
     }
     ;
 
+=======
+    UPDATE ID SET update_list where 
+    {
+      $$ = new ParsedSqlNode(SCF_UPDATE);
+      $$->update.relation_name = $2;
+      $$->update.attribute_names.swap(*$4);
+      if ($5 != nullptr) {
+        $$->update.conditions = $5;
+      }
+      free($2);
+    }
+    ;
+update_list:
+    ID EQ value
+    {
+      $$ = new std::vector<pair<std::string,Value>>;
+      $$->push_back({$1,*$3});
+    }
+    | update_list COMMA ID EQ value
+    {
+      if($1 != nullptr){
+        $$ = $1;
+      }
+      else{
+        $$ = new std::vector<pair<std::string,Value>>;
+      }
+      $$->push_back({$3,*$5});
+    }
+    ;
+>>>>>>> 281372a (haha date)
 
 select_stmt:        /*  select 语句的语法解析树*/
     SELECT expression_list FROM join_list where group_by having order_by
