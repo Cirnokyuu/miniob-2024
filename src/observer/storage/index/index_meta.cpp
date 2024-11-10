@@ -62,11 +62,11 @@ RC IndexMeta::from_json(const TableMeta &table, const Json::Value &json_value, I
     return RC::INTERNAL;
   }
 
-  if (!field_value.isString()) {
-    LOG_ERROR("Field name of index [%s] is not a string. json value=%s",
-        name_value.asCString(), field_value.toStyledString().c_str());
-    return RC::INTERNAL;
-  }
+  // if (!field_value.isString()) {
+  //   LOG_ERROR("Field name of index [%s] is not a string. json value=%s",
+  //       name_value.asCString(), field_value.toStyledString().c_str());
+  //   return RC::INTERNAL;
+  // }
   
   std::vector<const FieldMeta*> fields;
   for (int i = 0; i < field_num.asInt(); i++) {

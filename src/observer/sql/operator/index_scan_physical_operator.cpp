@@ -25,7 +25,7 @@ IndexScanPhysicalOperator::IndexScanPhysicalOperator(Table *table, Index *index,
       right_inclusive_(right_inclusive)
 {
   // get the field type from index
-  AttrType typ =(index->field_metas()[0].type());
+  AttrType typ =(index->field_metas()[1].type());
   if(typ == AttrType::DATES){
     if(left_value->attr_type() == AttrType::CHARS){
       DataType::type_instance(AttrType::CHARS)->cast_to(*left_value, AttrType::DATES,left_value_);

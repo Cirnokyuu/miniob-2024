@@ -41,6 +41,7 @@ RC CreateIndexStmt::create(Db *db, const CreateIndexSqlNode &create_index, Stmt 
   }
 
   std::vector<const FieldMeta*> fields;
+  fields.emplace_back(table->table_meta().null_field());
   for (auto attr_name : create_index.attribute_names) {
     const FieldMeta *field_meta = table->table_meta().field(attr_name.c_str());
     if (nullptr == field_meta) {

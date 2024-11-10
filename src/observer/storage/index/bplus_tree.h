@@ -78,7 +78,7 @@ public:
   {
     // TODO: optimized the comparison
     int offset=0;
-    for(int i=0;i<attr_length_.size();i++){
+    for(int i=1;i<attr_length_.size();i++){
       Value left;
       left.set_type(attr_type_[i]);
       left.set_data(v1+offset, attr_length_[i]);
@@ -90,7 +90,7 @@ public:
       if(res != 0){
         return res;
       }
-      offset+=offset_[i];
+      offset+=attr_length_[i];
     }
     return 0;
   }
@@ -162,8 +162,10 @@ public:
   {
     string ans;
     int attr_num = attr_type_.size();
+    int offset = 0;
     for (int i = 0; i < attr_num; i++) {
-      Value value(attr_type_[i], const_cast<char *>(v + offset_[i]), attr_length_[i]);
+      Value value(attr_type_[i], const_cast<char *>(v + offset), attr_length_[i]);
+      offset += attr_length_[i];
       ans += value.to_string();
       ans += ",";
     }
