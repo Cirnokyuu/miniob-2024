@@ -359,11 +359,7 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
 }
 
 
-<<<<<<< HEAD
-RC Table::update_record(Record &record, const FieldMeta *field, const Value &value)
-=======
 RC Table::update_record(Record &record, const vector<const FieldMeta*> fields, const vector<Value> &values)
->>>>>>> 281372a (haha date)
 {
   RC rc = RC::SUCCESS;
   int   record_size = table_meta_.record_size();
@@ -373,41 +369,6 @@ RC Table::update_record(Record &record, const vector<const FieldMeta*> fields, c
 
   const FieldMeta* null_field = table_meta_.null_field();
   common::Bitmap new_null_bitmap(record_data + null_field->offset(), table_meta_.field_num());
-<<<<<<< HEAD
-  int field_index = field->field_id();
-  if (value.is_null()){
-    if (field->nullable()){
-      new_null_bitmap.set_bit(field_index);
-    }
-    else{
-        LOG_ERROR("Invalid value type. table name:%s,field name:%s,value:%s ",
-            table_meta_.name(), field->name(), value.to_string().c_str());
-        return RC::SCHEMA_FIELD_TYPE_MISMATCH;
-    }
-  }
-  else{
-    new_null_bitmap.clear_bit(field_index);
-    if (field->type() != value.attr_type()) {
-      Value real_value;
-      rc = Value::cast_to(value, field->type(), real_value);
-      if (OB_FAIL(rc)) {
-        LOG_WARN("failed to cast value. table name:%s,field name:%s,value:%s ",
-            table_meta_.name(), field->name(), value.to_string().c_str());
-        return rc;
-      }
-      rc = set_value_to_record(record_data, real_value, field);
-    } else {
-      rc = set_value_to_record(record_data, value, field);
-    }
-  }
-
-
-  if (OB_FAIL(rc)) {
-    LOG_WARN("failed to make record. table name:%s", table_meta_.name());
-    free(record_data);
-    return rc;
-  }
-=======
 
   int upd_siz = fields.size();
   for(int i=0;i<upd_siz;++i){
@@ -446,7 +407,6 @@ RC Table::update_record(Record &record, const vector<const FieldMeta*> fields, c
     }
   }
 
->>>>>>> 281372a (haha date)
   record.set_data_owner(record_data, record_size);
   return RC::SUCCESS;
 }

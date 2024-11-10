@@ -77,11 +77,7 @@ public:
   int operator()(const char *v1, const char *v2) const
   {
     // TODO: optimized the comparison
-<<<<<<< HEAD
-    int offset=0;
-=======
     int offset=attr_length_[0];
->>>>>>> 281372a (haha date)
     for(int i=1;i<attr_length_.size();i++){
       Value left;
       left.set_type(attr_type_[i]);

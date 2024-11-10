@@ -261,13 +261,8 @@ RC LogicalPlanGenerator::create_plan(UpdateStmt *update_stmt, unique_ptr<Logical
 {
   Table                      *table       = update_stmt->table();
   FilterStmt                 *filter_stmt = update_stmt->filter_stmt();
-<<<<<<< HEAD
-  const FieldMeta             *field_meta = update_stmt->field_meta();
-  Value                             value = update_stmt->value();
-=======
   vector<const FieldMeta*>         fields = update_stmt->field_metas();
   vector<Value>                    values = update_stmt->values();
->>>>>>> 281372a (haha date)
   unique_ptr<LogicalOperator> table_get_oper(new TableGetLogicalOperator(table, ReadWriteMode::READ_WRITE));
 
   unique_ptr<LogicalOperator> predicate_oper;
@@ -277,11 +272,7 @@ RC LogicalPlanGenerator::create_plan(UpdateStmt *update_stmt, unique_ptr<Logical
     return rc;
   }
 
-<<<<<<< HEAD
-  unique_ptr<LogicalOperator> update_oper(new UpdateLogicalOperator(table,field_meta,value));
-=======
   unique_ptr<LogicalOperator> update_oper(new UpdateLogicalOperator(table,fields,values));
->>>>>>> 281372a (haha date)
 
   if (predicate_oper) {
     predicate_oper->add_child(std::move(table_get_oper));

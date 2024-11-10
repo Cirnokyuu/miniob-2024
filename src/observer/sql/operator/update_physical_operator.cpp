@@ -20,11 +20,7 @@ See the Mulan PSL v2 for more details. */
 using namespace std;
 
 UpdatePhysicalOperator::UpdatePhysicalOperator(
-<<<<<<< HEAD
-    Table *table, const FieldMeta *field_meta, Value value) : table_(table), field_meta_(field_meta), value_(value)
-=======
     Table *table, vector<const FieldMeta*> field_meta, vector<Value> value) : table_(table), field_metas_(field_meta), values_(value)
->>>>>>> 281372a (haha date)
 {}
 
 RC UpdatePhysicalOperator::open(Trx *trx)
@@ -65,11 +61,7 @@ RC UpdatePhysicalOperator::open(Trx *trx)
       LOG_WARN("failed to delete record: %s", strrc(rc));
       return rc;
     }
-<<<<<<< HEAD
-    rc = table_->update_record(record, field_meta_, value_);
-=======
     rc = table_->update_record(record, field_metas_, values_);
->>>>>>> 281372a (haha date)
     if (rc != RC::SUCCESS) {
       LOG_WARN("failed to make record. rc=%s", strrc(rc));
       return rc;

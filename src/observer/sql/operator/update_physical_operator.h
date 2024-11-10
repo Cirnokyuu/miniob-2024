@@ -27,11 +27,7 @@ class UpdateStmt;
 class UpdatePhysicalOperator : public PhysicalOperator
 {
 public:
-<<<<<<< HEAD
-  UpdatePhysicalOperator(Table *table, const FieldMeta *field_meta_, Value value);
-=======
   UpdatePhysicalOperator(Table *table, vector<const FieldMeta*> field_meta, vector<Value> value);
->>>>>>> 281372a (haha date)
 
   virtual ~UpdatePhysicalOperator() = default;
 
@@ -45,13 +41,8 @@ public:
 
 private:
   Table *table_        = nullptr;
-<<<<<<< HEAD
-  const FieldMeta *field_meta_ = nullptr;
-  Value value_;
-=======
   vector<const FieldMeta*> field_metas_;
   vector<Value> values_;
->>>>>>> 281372a (haha date)
   
   Trx                *trx_   = nullptr;
   std::vector<Record> records_;

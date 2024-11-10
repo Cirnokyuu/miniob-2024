@@ -282,13 +282,8 @@ RC PhysicalPlanGenerator::create_plan(InsertLogicalOperator &insert_oper, unique
 RC PhysicalPlanGenerator::create_plan(UpdateLogicalOperator &update_oper, unique_ptr<PhysicalOperator> &oper)
 {
   Table                      *table       = update_oper.table();
-<<<<<<< HEAD
-  const FieldMeta             *field_meta = update_oper.field_meta();
-  Value                             value = update_oper.value();
-=======
   vector<const FieldMeta*>         fields = update_oper.field_metas();
   vector<Value>                    values = update_oper.values();
->>>>>>> 281372a (haha date)
 
   vector<unique_ptr<LogicalOperator>> &child_opers = update_oper.children();
 
@@ -305,11 +300,7 @@ RC PhysicalPlanGenerator::create_plan(UpdateLogicalOperator &update_oper, unique
     }
   }
 
-<<<<<<< HEAD
-  oper = unique_ptr<PhysicalOperator>(new UpdatePhysicalOperator(table,field_meta,value));
-=======
   oper = unique_ptr<PhysicalOperator>(new UpdatePhysicalOperator(table,fields,values));
->>>>>>> 281372a (haha date)
 
   if (child_physical_oper) {
     oper->add_child(child_physical_oper.release());

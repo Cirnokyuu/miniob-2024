@@ -142,10 +142,7 @@ union YYSTYPE
   std::vector<Value> *                       value_list;
   std::vector<RelAttrSqlNode> *              rel_attr_list;
   std::vector<std::string> *                 relation_list;
-<<<<<<< HEAD
-=======
   std::vector<pair<std::string,Value>> *     update_c_list;
->>>>>>> 281372a (haha date)
   char *                                     string;
   int                                        number;
   float                                      floats;
@@ -153,11 +150,7 @@ union YYSTYPE
   std::pair<bool,Expression*> *              order_key;
   std::vector<pair<bool,Expression*>> *      order_key_list;
 
-<<<<<<< HEAD
-#line 153 "yacc_sql.hpp"
-=======
 #line 154 "yacc_sql.hpp"
->>>>>>> 281372a (haha date)
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -29,13 +29,8 @@ class UpdateStmt : public Stmt
 {
 public:
   UpdateStmt() = default;
-<<<<<<< HEAD
-  UpdateStmt(Table *table, const FieldMeta *field_meta, Value value, FilterStmt *filter_stmt)
-    : table_(table), field_meta_(field_meta), value_(value), filter_stmt_(filter_stmt)
-=======
   UpdateStmt(Table *table, vector<const FieldMeta*> field_meta, vector<Value> value, FilterStmt *filter_stmt)
     : table_(table), field_metas_(field_meta), values_(value), filter_stmt_(filter_stmt)
->>>>>>> 281372a (haha date)
   {}
 
   StmtType type() const override { return StmtType::UPDATE; }
@@ -45,23 +40,13 @@ public:
 
 public:
   Table *table() const { return table_; }
-<<<<<<< HEAD
-  const FieldMeta   *field_meta() const { return field_meta_; }
-  Value value() const { return value_; }
-=======
   vector<const FieldMeta*> field_metas() const { return field_metas_; }
   vector<Value> values() const { return values_; }
->>>>>>> 281372a (haha date)
   FilterStmt *filter_stmt() const { return filter_stmt_; }
 
 private:
   Table *table_        = nullptr;
-<<<<<<< HEAD
-  const FieldMeta *field_meta_ = nullptr;
-  Value value_;
-=======
   vector<const FieldMeta*> field_metas_;
   vector<Value> values_;
->>>>>>> 281372a (haha date)
   FilterStmt *filter_stmt_ = nullptr;
 };

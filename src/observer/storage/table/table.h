@@ -73,11 +73,7 @@ public:
 
   int get_field_id(const FieldMeta *field);
   RC make_record(int value_num, const Value *values, Record &record);
-<<<<<<< HEAD
-  RC update_record(Record &record, const FieldMeta *field, const Value &value);
-=======
   RC update_record(Record &record, const vector<const FieldMeta*> fields, const vector<Value> &values);
->>>>>>> 281372a (haha date)
 
   /**
    * @brief 在当前的表中插入一条记录

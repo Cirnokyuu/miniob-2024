@@ -140,10 +140,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   std::vector<Value> *                       value_list;
   std::vector<RelAttrSqlNode> *              rel_attr_list;
   std::vector<std::string> *                 relation_list;
-<<<<<<< HEAD
-=======
   std::vector<pair<std::string,Value>> *     update_c_list;
->>>>>>> 281372a (haha date)
   char *                                     string;
   int                                        number;
   float                                      floats;
@@ -207,10 +204,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 // commands should be a list but I use a single command instead
 %type <sql_node>            commands
 %type <relation_list>       index_list
-<<<<<<< HEAD
-=======
 %type <update_c_list>       update_list
->>>>>>> 281372a (haha date)
 
 %left AND
 %left '+' '-'
@@ -512,22 +506,6 @@ delete_stmt:    /*  delete 语句的语法解析树*/
     }
     ;
 update_stmt:      /*  update 语句的语法解析树*/
-<<<<<<< HEAD
-    UPDATE ID SET ID EQ value where 
-    {
-      $$ = new ParsedSqlNode(SCF_UPDATE);
-      $$->update.relation_name = $2;
-      $$->update.attribute_name = $4;
-      $$->update.value = *$6;
-      if ($7 != nullptr) {
-        $$->update.conditions = $7;
-      }
-      free($2);
-      free($4);
-    }
-    ;
-
-=======
     UPDATE ID SET update_list where 
     {
       $$ = new ParsedSqlNode(SCF_UPDATE);
@@ -556,7 +534,6 @@ update_list:
       $$->push_back({$3,*$5});
     }
     ;
->>>>>>> 281372a (haha date)
 
 select_stmt:        /*  select 语句的语法解析树*/
     SELECT expression_list FROM join_list where group_by having order_by

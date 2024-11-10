@@ -37,15 +37,6 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update, Stmt *&stmt)
   }
   
 // check whether the field exists
-<<<<<<< HEAD
-  const FieldMeta *field_meta = table->table_meta().field(update.attribute_name.c_str());
-  if (nullptr == field_meta) {
-    LOG_WARN("no such field in table. db=%s, table=%s, field name=%s", 
-             db->name(), table_name, update.attribute_name.c_str());
-    return RC::SCHEMA_FIELD_NOT_EXIST;
-  }
-
-=======
   vector<const FieldMeta*> fields;
   vector<Value> values;
   for (auto &attr : update.attribute_names) {
@@ -58,7 +49,6 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update, Stmt *&stmt)
     values.push_back(attr.second);
   }
   
->>>>>>> 281372a (haha date)
 // copy from delete
   binder_context.add_table(table);
   std::unordered_map<std::string, Table *> table_map;
@@ -88,10 +78,6 @@ RC UpdateStmt::create(Db *db, const UpdateSqlNode &update, Stmt *&stmt)
     return rc;
   }
 
-<<<<<<< HEAD
-  stmt = new UpdateStmt(table, field_meta, update.value, filter_stmt);
-=======
   stmt = new UpdateStmt(table, fields, values, filter_stmt);
->>>>>>> 281372a (haha date)
   return rc;
 }
