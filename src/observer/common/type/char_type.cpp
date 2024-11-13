@@ -98,13 +98,18 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
 
       while(getline(fin,str))arr.emplace_back(str);
       fin.close();
+      int ok=0;
       for(int i=0;i<arr.size();++i){
         if(arr[i]==needed_str){
           result.set_text(i);
-          return RC::SUCCESS;
+          ok=1;
+          break;
         }
       }
-      arr.emplace_back(needed_str);
+      if(!ok){
+        result.set_text(arr.size());
+        arr.emplace_back(needed_str);
+      }
       std::ofstream fout("my_texts_111.txt");
       for(auto k:arr)fout<<k<<endl;
       fout.close();
