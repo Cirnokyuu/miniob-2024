@@ -464,8 +464,8 @@ RC MvccTrx::redo(Db *db, const LogEntry &log_entry)
     } break;
 
     case MvccTrxLogOperation::Type::COMMIT: {
-      // auto *trx_log_record = reinterpret_cast<const MvccTrxCommitLogEntry *>(log_entry.data());
-      // commit_with_trx_id(trx_log_record->commit_trx_id);
+      auto *trx_log_record = reinterpret_cast<const MvccTrxCommitLogEntry *>(log_entry.data());
+      commit_with_trx_id(trx_log_record->commit_trx_id);
       // 遇到了提交日志，说明前面的记录都已经提交成功了
     } break;
 

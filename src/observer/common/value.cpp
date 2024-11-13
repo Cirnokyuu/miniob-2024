@@ -129,6 +129,10 @@ void Value::set_data(char *data, int length)
       value_.int_value_ = *(int *)data;
       length_             = length;
     } break;
+    case AttrType::TEXT: {
+      value_.int_value_ = *(int *)data;
+      length_             = length;
+    } break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
     } break;
@@ -192,6 +196,9 @@ void Value::set_value(const Value &value)
     } break;
     case AttrType::DATES: {
       set_date(value.get_int());
+    } break;
+    case AttrType::TEXT: {
+      set_text(value.get_int());
     } break;
     case AttrType::FLOATS: {
       set_float(value.get_float());
@@ -267,6 +274,9 @@ int Value::get_int() const
       return value_.int_value_;
     }
     case AttrType::DATES: {
+      return value_.int_value_;
+    }
+    case AttrType::TEXT: {
       return value_.int_value_;
     }
     case AttrType::FLOATS: {

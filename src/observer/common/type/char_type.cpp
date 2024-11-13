@@ -11,6 +11,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/comparator.h"
 #include "common/log/log.h"
 #include "common/type/char_type.h"
+#include "common/type/text_type.h"
 #include "common/value.h"
 #include "common/time/datetime.h"
 
@@ -79,6 +80,20 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
       result.set_int(d);
       LOG_INFO("Final %s",attr_type_to_string(result.attr_type()));
     }break;
+    case AttrType::TEXT:
+    {
+      result.attr_type_ = AttrType::TEXT;
+      std::ifstream fin("my_texts_111.txt");
+      vector<string>arr;string str;
+      while(getline(fin,str))arr.emplace_back(str);
+      fin.close();
+      str=val.value_.pointer_value_;
+      result.set_int(arr.size());
+      arr.emplace_back(str);
+      std::ofstream fout("my_texts_111.txt");
+      for(auto k:arr)fout<<k<<endl;
+      fout.close();
+    }break;
     default: return RC::UNIMPLEMENTED;
   }
   return RC::SUCCESS;
@@ -93,6 +108,9 @@ int CharType::cast_cost(AttrType type)
     return 1;
   }
   if (type == AttrType::INTS) {
+    return 1;
+  }
+  if (type == AttrType::TEXT) {
     return 1;
   }
   return INT32_MAX;

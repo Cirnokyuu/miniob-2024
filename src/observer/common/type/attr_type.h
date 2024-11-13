@@ -21,6 +21,7 @@ enum class AttrType
   INTS,      ///< 整数类型(4字节)
   FLOATS,    ///< 浮点数类型(4字节)
   DATES,     ///< 日期类型
+  TEXT,     ///< 文本类型
   VECTORS,   ///< 向量类型
   NULLS,    ///< NULL
   BOOLEANS,  ///< boolean类型，当前不是由parser解析出来的，是程序内部使用的

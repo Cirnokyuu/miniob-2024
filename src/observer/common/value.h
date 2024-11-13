@@ -103,6 +103,10 @@ public:
     value_.int_value_=dat;
     attr_type_ = AttrType::DATES;
   }
+  void set_text(int tid){
+    value_.int_value_=tid;
+    attr_type_ = AttrType::TEXT;
+  }
   
 
   string to_string() const;
