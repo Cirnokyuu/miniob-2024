@@ -51,7 +51,25 @@ RC UpdatePhysicalOperator::open(Trx *trx)
     records_.emplace_back(std::move(record));
   }
 
+
   child->close();
+
+  if (field_metas_.size() != values_.size()) {
+    LOG_WARN("field_metas size is not equal to values size");
+    return RC::INVALID_ARGUMENT;
+  }
+  for(int i = 0; i < field_metas_.size(); i++) {
+    if (field_metas_[i]->type() != values_[i].attr_type()) {
+      Value &value = values_[i],tmp;
+      RC rc = DataType::type_instance(value.attr_type())->cast_to(value, field_metas_[i]->type(), tmp);
+      if (OB_FAIL(rc)) {
+        LOG_WARN("failed to cast value: %s", strrc(rc));
+        return rc;
+      }
+      value = tmp;
+    }
+  }
+  
 
   // 先收集记录再删除
   // 记录的有效性由事务来保证，如果事务不保证删除的有效性，那说明此事务类型不支持并发控制，比如VacuousTrx
