@@ -88,10 +88,6 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
         LOG_WARN("text too long");
         return RC::INVALID_ARGUMENT;
       }
-      //to fix
-      if(str.size()>4096){
-        str = str.substr(0,4096);
-      }
       globalstr.push_back(str);
       result.set_text(globalstr.size()-1);
     }break;
