@@ -85,11 +85,26 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
       result.attr_type_ = AttrType::TEXT;
       std::ifstream fin("my_texts_111.txt");
       vector<string>arr;string str;
+      string needed_str = val.value_.pointer_value_;
+      if(needed_str.size()>65535){
+        LOG_WARN("text too long");
+        return RC::INVALID_ARGUMENT;
+      }
+
+      //to fix
+      if(needed_str.size()>4096){
+        needed_str = needed_str.substr(0,4096);
+      }
+
       while(getline(fin,str))arr.emplace_back(str);
       fin.close();
-      str=val.value_.pointer_value_;
-      result.set_int(arr.size());
-      arr.emplace_back(str);
+      for(int i=0;i<arr.size();++i){
+        if(arr[i]==needed_str){
+          result.set_text(i);
+          return RC::SUCCESS;
+        }
+      }
+      arr.emplace_back(needed_str);
       std::ofstream fout("my_texts_111.txt");
       for(auto k:arr)fout<<k<<endl;
       fout.close();
