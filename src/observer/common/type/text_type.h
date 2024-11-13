@@ -19,12 +19,8 @@ public:
     TextType() : DataType(AttrType::TEXT) {}
     virtual ~TextType() = default;
     string get_string_by_id(int id) const{
-        std::ifstream fin("my_texts_111.txt");
-        vector<string>arr;string str;
-        while(getline(fin,str))arr.emplace_back(str);
-        return arr[id];
+        return globalstr[id];
     }
 
     RC to_string(const Value &val, string &result) const override;
-    
 };

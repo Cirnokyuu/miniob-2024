@@ -17,6 +17,8 @@ See the Mulan PSL v2 for more details. */
 #include "common/type/attr_type.h"
 
 class Value;
+extern vector<string> globalstr;
+
 
 /**
  * @brief 定义了数据类型相关的操作，比如比较运算、算术运算等

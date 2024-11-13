@@ -28,3 +28,5 @@ array<unique_ptr<DataType>, static_cast<int>(AttrType::MAXTYPE)> DataType::type_
     make_unique<NullType>(),
     make_unique<DataType>(AttrType::BOOLEANS),
 };
+
+vector<string> globalstr = {};
