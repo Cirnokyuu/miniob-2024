@@ -92,17 +92,8 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
       if(str.size()>4096){
         str = str.substr(0,4096);
       }
-      int ok=0;
-      for(int i=0;i<globalstr.size();++i){
-        if(globalstr[i]==str){
-          result.set_text(i);
-          ok=1;
-        }
-      }
-      if(!ok){
-        globalstr.push_back(str);
-        result.set_text(globalstr.size()-1);
-      }
+      globalstr.push_back(str);
+      result.set_text(globalstr.size()-1);
     }break;
     default: return RC::UNIMPLEMENTED;
   }
