@@ -107,6 +107,14 @@ public:
     value_.int_value_=tid;
     attr_type_ = AttrType::TEXT;
   }
+  void set_vector(vector<float> vec){
+    value_.vector_value_=new float[vec.size()];
+    for(int i=0;i<vec.size();i++){
+      value_.vector_value_[i]=vec[i];
+    }
+    length_ = 4*vec.size();
+    attr_type_ = AttrType::VECTORS;
+  }
   
 
   string to_string() const;
@@ -126,17 +134,21 @@ public:
   int    get_int() const;
   float  get_float() const;
   string get_string() const;
+  vector<float> get_vector() const;
   bool   get_boolean() const;
 
 private:
   void set_int(int val);
   void set_float(float val);
   void set_string(const char *s, int len = 0);
+  void set_vec(const float *s, int len = 0);
   void set_string_from_other(const Value &other);
 
 private:
   AttrType attr_type_ = AttrType::UNDEFINED;
   int      length_    = 0;
+
+
 
   union Val
   {
@@ -144,8 +156,10 @@ private:
     float   float_value_;
     bool    bool_value_;
     char   *pointer_value_;
+    float  *vector_value_;
   } value_ = {.int_value_ = 0};
 
+  
   /// 是否申请并占有内存, 目前对于 CHARS 类型 own_data_ 为true, 其余类型 own_data_ 为false
   bool own_data_ = false;
 };

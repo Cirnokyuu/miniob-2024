@@ -21,6 +21,6 @@ public:
     string get_string_by_id(int id) const{
         return globalstr[id];
     }
-
+    int compare(const Value &left, const Value &right) const override;
     RC to_string(const Value &val, string &result) const override;
 };

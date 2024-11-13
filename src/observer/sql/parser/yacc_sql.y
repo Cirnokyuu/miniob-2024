@@ -397,6 +397,9 @@ attr_def:
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = $4;
+      if($$->type == AttrType::VECTORS){
+        $$->length = 4*$4;
+      }
       $$->nullable = $6;
       free($1);
     }

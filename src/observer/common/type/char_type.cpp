@@ -91,6 +91,23 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
       globalstr.push_back(str);
       result.set_text(globalstr.size()-1);
     }break;
+    case AttrType::VECTORS:
+    {
+      result.attr_type_ = AttrType::VECTORS;
+      vector<float> vec;
+      string str = val.value_.pointer_value_;
+      if(str.size()<2 || str[0]!='[' || str[str.size()-1]!=']'){
+        LOG_WARN("invalid vector format: %s",val.value_.pointer_value_);
+        return RC::INVALID_ARGUMENT;
+      }
+      str = str.substr(1,str.size()-2);
+      stringstream ss(str);
+      string tmp;
+      while(getline(ss,tmp,',')){
+        vec.push_back(stof(tmp));
+      }
+      result.set_vector(vec);
+    }break;
     default: return RC::UNIMPLEMENTED;
   }
   return RC::SUCCESS;

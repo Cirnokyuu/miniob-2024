@@ -19,6 +19,9 @@ See the Mulan PSL v2 for more details. */
 #include "common/lang/sstream.h"
 #include "common/lang/string.h"
 #include "common/log/log.h"
+#include <sstream>
+#include <vector>
+#include <string>
 
 Value::Value(int val) { set_int(val); }
 
@@ -113,6 +116,9 @@ void Value::set_data(char *data, int length)
     case AttrType::CHARS: {
       set_string(data, length);
     } break;
+    case AttrType::VECTORS: {
+      set_vec((float *)data, length);
+    } break;
     case AttrType::INTS: {
       value_.int_value_ = *(int *)data;
       length_           = length;
@@ -188,6 +194,21 @@ void Value::set_string(const char *s, int len /*= 0*/)
   }
 }
 
+void Value::set_vec(const float *s, int len /*= 0*/)
+{
+  reset();
+  attr_type_ = AttrType::VECTORS;
+  if (s == nullptr) {
+    value_.vector_value_ = nullptr;
+    length_              = 0;
+  } else {
+    own_data_ = true;
+    value_.vector_value_ = new float[len/4];
+    length_              = len;
+    memcpy(value_.vector_value_, s, len);
+  }
+}
+
 void Value::set_value(const Value &value)
 {
   switch (value.attr_type_) {
@@ -205,6 +226,9 @@ void Value::set_value(const Value &value)
     } break;
     case AttrType::CHARS: {
       set_string(value.get_string().c_str());
+    } break;
+    case AttrType::VECTORS: {
+      set_vec(value.get_vector().data(), value.length());
     } break;
     case AttrType::BOOLEANS: {
       set_boolean(value.get_boolean());
@@ -233,6 +257,9 @@ const char *Value::data() const
   switch (attr_type_) {
     case AttrType::CHARS: {
       return value_.pointer_value_;
+    } break;
+    case AttrType::VECTORS: {
+      return (const char *)value_.vector_value_;
     } break;
     default: {
       return (const char *)&value_;
@@ -322,6 +349,40 @@ float Value::get_float() const
 }
 
 string Value::get_string() const { return this->to_string(); }
+
+vector<float> Value::get_vector() const {
+  switch (attr_type_) {
+    case AttrType::VECTORS: {
+      vector<float> res;
+      res.resize(length_/4);
+      memcpy(res.data(), value_.vector_value_, length_);
+      return res;
+    } break;
+    case AttrType::CHARS: {
+      vector<float> res;
+      try {
+        string s = value_.pointer_value_;
+        s=s.substr(1,s.size()-2);
+        vector<string> v;
+        std::stringstream ss(s);
+        std::string item;
+        while (std::getline(ss, item, ',')) {
+            v.push_back(item);
+        }
+        for (int i = 0; i < v.size(); i++) {
+          res.push_back(std::stof(v[i]));
+        }
+      } catch (exception const &ex) {
+        return {};
+      }
+      return res;
+    } break;
+    default: {
+      LOG_WARN("unknown data type. type=%d", attr_type_);
+      return {};
+    }
+  }
+}
 
 bool Value::get_boolean() const
 {

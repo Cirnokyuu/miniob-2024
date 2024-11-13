@@ -16,7 +16,15 @@ See the Mulan PSL v2 for more details. */
 #include "common/type/text_type.h"
 #include "common/value.h"
 
+int TextType::compare(const Value &left, const Value &right) const
+{
+    ASSERT(left.attr_type() == AttrType::TEXT || left.attr_type()== AttrType::CHARS, "left type is not text");
+    ASSERT(right.attr_type() == AttrType::TEXT || right.attr_type()== AttrType::CHARS, "right type is not text");
 
+    string left_str = left.to_string();
+    string right_str = right.to_string();
+    return common::compare_string((void *)left_str.c_str(), left_str.size(), (void *)right_str.c_str(), right_str.size());
+}
 
 RC TextType::to_string(const Value &val, string &result) const
 {
