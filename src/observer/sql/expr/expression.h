@@ -365,6 +365,9 @@ public:
     MUL,
     DIV,
     NEGATIVE,
+    INNERPRODUCT,
+    COSINEDISTANCE,
+    L2DISTANCE,
   };
 
 public:

@@ -13,6 +13,7 @@ See the Mulan PSL v2 for more details. */
 #include "common/log/log.h"
 #include "common/type/float_type.h"
 #include "common/value.h"
+#include <cmath>
 #include "common/lang/limits.h"
 #include "common/value.h"
 
@@ -82,5 +83,100 @@ RC FloatType::to_string(const Value &val, string &result) const
   stringstream ss;
   ss << common::double_to_str(val.value_.float_value_);
   result = ss.str();
+  return RC::SUCCESS;
+}
+
+RC FloatType::inner_product(const Value &left, const Value &right, Value &result) const
+{
+  Value lft = left;
+  Value rgt = right;
+  if(left.attr_type() == AttrType::CHARS){
+    RC rc = DataType::type_instance(AttrType::CHARS)->cast_to(left, AttrType::VECTORS, lft);
+    if(OB_FAIL(rc)){
+      return rc;
+    }
+  }
+  if(right.attr_type() == AttrType::CHARS){
+    RC rc = DataType::type_instance(AttrType::CHARS)->cast_to(right, AttrType::VECTORS, rgt);
+    if(OB_FAIL(rc)){
+      return rc;
+    }
+  }
+  vector<float> l = lft.get_vector();
+  vector<float> r = rgt.get_vector();
+  if (l.size() != r.size()) {
+    LOG_ERROR("The size of two vectors is not equal");
+    return RC::INTERNAL;
+  }
+  float res = 0;
+  for (int i = 0; i < l.size(); i++) {
+    res += l[i] * r[i];
+  }
+  result.set_float(res);
+  return RC::SUCCESS;
+}
+
+RC FloatType::cosine_distance(const Value &left, const Value &right, Value &result) const
+{
+  Value lft = left;
+  Value rgt = right;
+  if(left.attr_type() == AttrType::CHARS){
+    RC rc = DataType::type_instance(AttrType::CHARS)->cast_to(left, AttrType::VECTORS, lft);
+    if(OB_FAIL(rc)){
+      return rc;
+    }
+  }
+  if(right.attr_type() == AttrType::CHARS){
+    RC rc = DataType::type_instance(AttrType::CHARS)->cast_to(right, AttrType::VECTORS, rgt);
+    if(OB_FAIL(rc)){
+      return rc;
+    }
+  }
+  vector<float> l = lft.get_vector();
+  vector<float> r = rgt.get_vector();
+  if (l.size() != r.size()) {
+    LOG_ERROR("The size of two vectors is not equal");
+    return RC::INTERNAL;
+  }
+  float inner_product = 0;
+  float l2_norm      = 0;
+  float r2_norm      = 0;
+  for (int i = 0; i < l.size(); i++) {
+    inner_product += l[i] * r[i];
+    l2_norm += l[i] * l[i];
+    r2_norm += r[i] * r[i];
+  }
+  float cosine = inner_product / (sqrt(l2_norm) * sqrt(r2_norm));
+  result.set_float(cosine);
+  return RC::SUCCESS;
+}
+
+RC FloatType::l2_distance(const Value &left, const Value &right, Value &result) const
+{
+  Value lft = left;
+  Value rgt = right;
+  if(left.attr_type() == AttrType::CHARS){
+    RC rc = DataType::type_instance(AttrType::CHARS)->cast_to(left, AttrType::VECTORS, lft);
+    if(OB_FAIL(rc)){
+      return rc;
+    }
+  }
+  if(right.attr_type() == AttrType::CHARS){
+    RC rc = DataType::type_instance(AttrType::CHARS)->cast_to(right, AttrType::VECTORS, rgt);
+    if(OB_FAIL(rc)){
+      return rc;
+    }
+  }
+  vector<float> l = lft.get_vector();
+  vector<float> r = rgt.get_vector();
+  if (l.size() != r.size()) {
+    LOG_ERROR("The size of two vectors is not equal");
+    return RC::INTERNAL;
+  }
+  float res = 0;
+  for (int i = 0; i < l.size(); i++) {
+    res += (l[i] - r[i]) * (l[i] - r[i]);
+  }
+  result.set_float(sqrt(res));
   return RC::SUCCESS;
 }

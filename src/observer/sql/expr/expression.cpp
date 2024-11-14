@@ -423,6 +423,18 @@ RC ArithmeticExpr::calc_value(const Value &left_value, const Value &right_value,
       Value::negative(left_value, value);
     } break;
 
+    case Type::INNERPRODUCT: {
+      Value::inner_product(left_value, right_value, value);
+    } break;
+
+    case Type::COSINEDISTANCE: {
+      Value::cosine_distance(left_value, right_value, value);
+    } break;
+
+    case Type::L2DISTANCE: {
+      Value::l2_distance(left_value, right_value, value);
+    } break;
+
     default: {
       rc = RC::INTERNAL;
       LOG_WARN("unsupported arithmetic type. %d", arithmetic_type_);

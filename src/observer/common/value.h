@@ -80,6 +80,21 @@ public:
   {
     return DataType::type_instance(result.attr_type())->negative(value, result);
   }
+  
+  static RC inner_product(const Value &left, const Value &right, Value &result)
+  {
+    return DataType::type_instance(result.attr_type())->inner_product(left, right, result);
+  }
+
+  static RC cosine_distance(const Value &left, const Value &right, Value &result)
+  {
+    return DataType::type_instance(result.attr_type())->cosine_distance(left, right, result);
+  }
+
+  static RC l2_distance(const Value &left, const Value &right, Value &result)
+  {
+    return DataType::type_instance(result.attr_type())->l2_distance(left, right, result);
+  }
 
   static RC cast_to(const Value &value, AttrType to_type, Value &result)
   {
