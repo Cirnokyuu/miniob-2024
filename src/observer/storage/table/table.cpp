@@ -422,8 +422,10 @@ RC Table::set_value_to_record(char *record_data, const Value &value, const Field
     }
   }
   if (field->type() == AttrType::VECTORS) {
-    if (copy_len > 4*data_len) {
-      copy_len = 4*data_len + 1;
+    if(copy_len != data_len){
+      LOG_ERROR("Invalid value type. table name:%s,field name:%s,value:%s ",
+          table_meta_.name(), field->name(), value.to_string().c_str());
+      return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
   }
   string str = value.to_string();
