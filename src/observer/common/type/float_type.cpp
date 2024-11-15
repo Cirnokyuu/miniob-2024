@@ -146,7 +146,10 @@ RC FloatType::cosine_distance(const Value &left, const Value &right, Value &resu
     l2_norm += l[i] * l[i];
     r2_norm += r[i] * r[i];
   }
-  float cosine = inner_product / (sqrt(l2_norm) * sqrt(r2_norm));
+  float cosine = 1 - inner_product / (sqrt(l2_norm) * sqrt(r2_norm));
+  if(cosine <= EPSILON && cosine >= -EPSILON){
+    cosine = 0;
+  }
   result.set_float(cosine);
   return RC::SUCCESS;
 }
