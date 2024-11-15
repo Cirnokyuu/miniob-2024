@@ -47,7 +47,8 @@ protected:
   std::vector<pair<bool,std::unique_ptr<Expression>>> order_by_expressions_;
   std::vector<Expression*> query_exprressions_;
   std::vector<Expression*> name_exprs;
-  std::vector<std::pair<std::vector<Value>,int>> answer;
+  std::vector<int> answer;
+  std::vector<std::vector<Value>> ans_values;
   std::vector<std::vector<Value>> key_values;
   int now_index = 0;
   ValueListTuple cur_tuple;

@@ -94,7 +94,8 @@ RC OrderByPhysicalOperator::get_key_values(){
 			}
 			all_values.push_back(value);
 		}
-		answer.push_back({all_values,key_values.size()-1});
+		ans_values.push_back(all_values);
+		answer.push_back(ans_values.size()-1);
 	}
 	return RC::SUCCESS;
 }
@@ -107,9 +108,9 @@ RC OrderByPhysicalOperator::work(){
 		return rc;
 	}
 	std::sort(answer.begin(),answer.end(),
-		[&](const std::pair<std::vector<Value>,int> &a,const std::pair<std::vector<Value>,int> &b){
-			auto &a_vec=key_values[a.second];
-			auto &b_vec=key_values[b.second];
+		[&](int a,int b){
+			auto &a_vec=key_values[a];
+			auto &b_vec=key_values[b];
 			for(int i=0;i<order_by_expressions_.size();i++){
 				bool null_a=a_vec[i].is_null();
 				bool null_b=b_vec[i].is_null();
@@ -127,7 +128,7 @@ RC OrderByPhysicalOperator::work(){
 					}
 				}
 			}
-			return a.second<b.second;
+			return a<b;
 		}
 	);
 	return RC::SUCCESS;
@@ -135,7 +136,7 @@ RC OrderByPhysicalOperator::work(){
 
 RC OrderByPhysicalOperator::next(){
   if(now_index<answer.size()){
-    cur_tuple.set_cells(answer[now_index].first);
+    cur_tuple.set_cells(ans_values[answer[now_index]]);
   	LOG_DEBUG("cur_tuple %s", cur_tuple.to_string().c_str());
     now_index++;
     return RC::SUCCESS;

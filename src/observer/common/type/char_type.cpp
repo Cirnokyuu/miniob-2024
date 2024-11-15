@@ -33,6 +33,24 @@ int CharType::compare(const Value &left, const Value &right) const
     float right_val = right.get_float();
     return common::compare_float((void *)&left_val, (void *)&right_val);
   }
+  if(right.attr_type() == AttrType::VECTORS){
+    Value tmp;
+    DataType::type_instance(AttrType::CHARS)->cast_to(left,AttrType::VECTORS,tmp);
+    vector<float> l = tmp.get_vector();
+    vector<float> r = right.get_vector();
+    if(l.size() != r.size()){
+      LOG_ERROR("The size of two vectors is not equal");
+      return INT32_MAX;
+    }
+    for(int i = 0; i < l.size(); i++){
+      if(l[i] < r[i]){
+        return -1;
+      }else if(l[i] > r[i]){
+        return 1;
+      }
+    }
+    return 0;
+  }
   return common::compare_string(
       (void *)left.value_.pointer_value_, left.length_, (void *)right.value_.pointer_value_, right.length_);
 }
