@@ -127,7 +127,7 @@ RC VectorType::cosine_distance(const Value &left, const Value &right, Value &res
     }
     l_norm = sqrt(l_norm);
     r_norm = sqrt(r_norm);
-    float res = inner_product / (l_norm * r_norm);
+    float res = 1 - inner_product / (l_norm * r_norm);
     result.set_float(res);
     return RC::SUCCESS;
 }
