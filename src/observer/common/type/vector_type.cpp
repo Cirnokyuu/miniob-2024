@@ -88,9 +88,9 @@ RC VectorType::to_string(const Value &val, string &result) const {
     std::ostringstream oss;
     oss << "[";
     for(int i = 0; i < v.size() - 1; i++){
-        oss << v[i] << ", ";
+        oss << common::double_to_str(v[i]) << ",";
     }
-    oss << v[v.size() - 1] << "]";
+    oss << common::double_to_str(v[v.size() - 1]) << "]";
     result = oss.str();
     return RC::SUCCESS;
 }
